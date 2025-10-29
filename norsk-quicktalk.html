@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Norsk QuickTalk – Daily Norwegian for Work & Life</title>
-  <meta name="description" content="Single-file pocket phrasebook for Norway. Construction-first vocab, daily life phrases, search, TTS, icons, and favorites. Works anywhere as a static page." />
+  <meta name="description" content="Multi-language pocket phrasebook for Norway & Finland. Construction-first vocab, daily life phrases, search, TTS, icons, favorites, currency converter, Bergen places, and image search. Works anywhere as a static page." />
   <style>
     :root {
       --bg: #0f1115;
@@ -355,6 +355,111 @@
       margin-bottom: 10px;
     }
     
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+      background: var(--panel);
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 600px;
+      box-shadow: var(--shadow);
+    }
+    
+    .close {
+      color: var(--muted);
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 20px;
+    }
+    
+    .close:hover,
+    .close:focus {
+      color: var(--accent);
+    }
+    
+    .modal-content h2 {
+      margin-top: 0;
+      color: var(--text);
+    }
+    
+    .calculator-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .calc-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .calc-row input[type="number"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 1.1rem;
+    }
+    
+    .calc-row select {
+      flex: 1;
+    }
+    
+    .rate-info {
+      padding: 10px;
+      background: var(--card);
+      border-radius: 10px;
+      text-align: center;
+      color: var(--muted);
+    }
+    
+    #placesList {
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 10px 0;
+    }
+    
+    .place-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    #newPlaceName, #newPlaceCategory {
+      padding: 8px;
+      margin-right: 5px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--text);
+    }
+    
     @keyframes slideIn {
       from {
         transform: translateX(400px);
@@ -399,11 +504,15 @@
             <path d="M11 19a8 8 0 100-16 8 8 0 000 16z" stroke="currentColor" stroke-width="1.5" opacity=".7"/>
             <path d="M21 21l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
           </svg>
-          <input id="q" placeholder="Search English or Norwegian… (e.g. 'impact driver' / 'slagtrekker')" aria-label="Search phrases" />
+          <input id="q" placeholder="Search English or Norwegian or Finnish… (e.g. 'hammer' / 'vasara')" aria-label="Search phrases" />
         </div>
+        <select id="targetLang" aria-label="Select target language">
+          <option value="no">🇳🇴 Norwegian</option>
+          <option value="fi">🇫🇮 Finnish</option>
+        </select>
         <label class="toggle">
           <input type="checkbox" id="hideEn" aria-label="Hide English translations"/>
-          <span>Hide English (learn mode)</span>
+          <span>Hide English</span>
         </label>
         <label class="toggle">
           <input type="checkbox" id="onlyFav" aria-label="Show only favorites"/>
@@ -415,17 +524,75 @@
           <option value="light">Light</option>
         </select>
         <button class="btn primary" id="exportFav" aria-label="Export favorites">Export ★</button>
+        <button class="btn" id="currencyCalc" aria-label="Currency Calculator">💱 Calculator</button>
+        <button class="btn" id="placesBtn" aria-label="Bergen Places">📍 Places</button>
       </div>
       <div class="chips" id="chips" role="tablist"></div>
     </header>
     <main>
       <section class="grid" id="list" aria-live="polite" role="region" aria-label="Phrase list"></section>
       
+      <!-- Currency Calculator Modal -->
+      <div id="currencyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close" id="closeCurrency">&times;</span>
+          <h2>💱 Currency Calculator</h2>
+          <div class="calculator-grid">
+            <div class="calc-row">
+              <input type="number" id="fromAmount" value="100" step="0.01" />
+              <select id="fromCurrency">
+                <option value="NOK">NOK - Norwegian Krone</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="GBP">GBP - British Pound</option>
+                <option value="SEK">SEK - Swedish Krona</option>
+                <option value="DKK">DKK - Danish Krone</option>
+              </select>
+            </div>
+            <div class="calc-row">
+              <span style="font-size: 2rem;">⬇️</span>
+            </div>
+            <div class="calc-row">
+              <input type="number" id="toAmount" readonly />
+              <select id="toCurrency">
+                <option value="EUR">EUR - Euro</option>
+                <option value="NOK">NOK - Norwegian Krone</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="GBP">GBP - British Pound</option>
+                <option value="SEK">SEK - Swedish Krona</option>
+                <option value="DKK">DKK - Danish Krone</option>
+              </select>
+            </div>
+            <div class="calc-row">
+              <button class="btn primary" id="convertBtn">Convert</button>
+              <button class="btn" id="swapBtn">Swap 🔄</button>
+            </div>
+            <div id="rateInfo" class="rate-info"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bergen Places Modal -->
+      <div id="placesModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close" id="closePlaces">&times;</span>
+          <h2>📍 Bergen Places</h2>
+          <div id="mapContainer" style="height: 400px; background: var(--card); border-radius: 10px; margin: 10px 0;"></div>
+          <div id="placesList"></div>
+          <div style="margin-top: 10px;">
+            <input type="text" id="newPlaceName" placeholder="Place name" />
+            <input type="text" id="newPlaceCategory" placeholder="Category (e.g., Restaurant)" />
+            <button class="btn primary" id="addPlaceBtn">Add Place</button>
+          </div>
+        </div>
+      </div>
+      
       <div class="footer">
-        <div><b>Tip:</b> tap the star to save, the triangle to hear Norwegian (TTS needs a browser voice for <code>nb-NO</code>), and the copy icon to grab text. Items in <span class="badge">slang</span> are site-talk—use with a smile.</div>
+        <div><b>Tip:</b> tap the star to save, the triangle to hear pronunciation, and the copy icon to grab text. Items in <span class="badge">slang</span> are site-talk—use with a smile. Switch between Norwegian 🇳🇴 and Finnish 🇫🇮 using the language selector.</div>
         <div class="cheats small">
           <div><b>Norwegian sounds:</b> <b>å</b> ~ "aw" (as in <i>law</i>), <b>ø</b> ~ "uh/eur" (French <i>peur</i>), <b>æ</b> ~ "a" in <i>cat</i>. <b>kj</b> ≈ soft <i>hy</i>, <b>skj</b>/<b>sj</b> ≈ "sh".</div>
-          <div><b>Emergency numbers:</b> Police <b>112</b>, Ambulance <b>113</b>, Fire <b>110</b>.</div>
+          <div><b>Finnish sounds:</b> <b>ä</b> ~ "a" in <i>cat</i>, <b>ö</b> ~ German ö, double vowels are long. All letters pronounced.</div>
+          <div><b>Emergency numbers:</b> Norway: Police <b>112</b>, Ambulance <b>113</b>, Fire <b>110</b>. Finland: All emergencies <b>112</b>.</div>
           <div><b>Patterns:</b> <b>Jeg trenger …</b> (I need …) • <b>Hvor er …?</b> (Where is …?) • <b>Kan du …?</b> (Can you …?) • <b>Er det i vater?</b> (Is it level?)</div>
         </div>
       </div>
@@ -442,6 +609,14 @@
       onlyFav: false,
       theme: localStorage.getItem('nqt_theme') || 'black-orange',
       favs: new Set(JSON.parse(localStorage.getItem('nqt_favs') || '[]')),
+      targetLang: localStorage.getItem('nqt_targetLang') || 'no', // 'no' or 'fi'
+      ttsProvider: localStorage.getItem('nqt_ttsProvider') || 'browser', // 'browser', 'elevenlabs', 'openai'
+      translationProvider: localStorage.getItem('nqt_translationProvider') || 'none', // 'none', 'deepl', 'google'
+      savedWords: JSON.parse(localStorage.getItem('nqt_savedWords') || '[]'),
+      savedPlaces: JSON.parse(localStorage.getItem('nqt_savedPlaces') || '[]'),
+      exchangeRates: JSON.parse(localStorage.getItem('nqt_exchangeRates') || '{}'),
+      lastRateUpdate: localStorage.getItem('nqt_lastRateUpdate') || null,
+      learnProgress: JSON.parse(localStorage.getItem('nqt_learnProgress') || '{}'), // Track phrase usage
     };
 
     const CATS = [
@@ -451,32 +626,44 @@
       'Site Slang (Bygge-slang)',
       'Small Talk (Småprat)',
       'Shopping & Food (Butikk & Mat)',
+      'Money & Exchange (Penger & Veksling)',
       'Transport (Transport)',
       'Health & Emergency (Helse & Nød)',
       'Housing & Utilities (Bolig & Tjenester)',
       'Admin (Papirer & Kontor)',
-      'Numbers & Time (Tall & Tid)'
+      'Numbers & Time (Tall & Tid)',
+      'Bergen Places (Bergen Steder)',
+      'Quantities (Mengder)',
+      'Weather (Vær)',
+      'Restaurants & Dining (Restaurant & Mat)',
+      'Colors (Farger)',
+      'Directions (Retninger)'
     ];
 
     // Helper functions to create phrase and word objects
-    function P(cat, en, no, icon = '') {
-      return { id: id(en + no + cat), cat, type: 'phrase', en, no, icon };
+    function P(cat, en, no, fi = '', icon = '') {
+      return { id: id(en + no + cat), cat, type: 'phrase', en, no, fi: fi || no, icon };
     }
     
-    function W(cat, en, no, icon = '') {
-      return { id: id(en + no + cat), cat, type: 'word', en, no, icon };
+    function W(cat, en, no, fi = '', icon = '') {
+      return { id: id(en + no + cat), cat, type: 'word', en, no, fi: fi || no, icon };
     }
     
     function Numbers(cat) {
       const N = [
-        ['zero', 'null'], ['one', 'én'], ['two', 'to'], ['three', 'tre'],
-        ['four', 'fire'], ['five', 'fem'], ['six', 'seks'], ['seven', 'sju'],
-        ['eight', 'åtte'], ['nine', 'ni'], ['ten', 'ti'], ['eleven', 'elleve'],
-        ['twelve', 'tolv'], ['thirteen', 'tretten'], ['fourteen', 'fjorten'],
-        ['fifteen', 'femten'], ['sixteen', 'seksten'], ['seventeen', 'sytten'],
-        ['eighteen', 'atten'], ['nineteen', 'nitten'], ['twenty', 'tjue']
+        ['zero', 'null', 'nolla'], ['one', 'én', 'yksi'], ['two', 'to', 'kaksi'], ['three', 'tre', 'kolme'],
+        ['four', 'fire', 'neljä'], ['five', 'fem', 'viisi'], ['six', 'seks', 'kuusi'], ['seven', 'sju', 'seitsemän'],
+        ['eight', 'åtte', 'kahdeksan'], ['nine', 'ni', 'yhdeksän'], ['ten', 'ti', 'kymmenen'], ['eleven', 'elleve', 'yksitoista'],
+        ['twelve', 'tolv', 'kaksitoista'], ['thirteen', 'tretten', 'kolmetoista'], ['fourteen', 'fjorten', 'neljätoista'],
+        ['fifteen', 'femten', 'viisitoista'], ['sixteen', 'seksten', 'kuusitoista'], ['seventeen', 'sytten', 'seitsemäntoista'],
+        ['eighteen', 'atten', 'kahdeksantoista'], ['nineteen', 'nitten', 'yhdeksäntoista'], ['twenty', 'tjue', 'kaksikymmentä'],
+        ['thirty', 'tretti', 'kolmekymmentä'], ['forty', 'førti', 'neljäkymmentä'], ['fifty', 'femti', 'viisikymmentä'],
+        ['sixty', 'seksti', 'kuusikymmentä'], ['seventy', 'sytti', 'seitsemänkymmentä'], ['eighty', 'åtti', 'kahdeksankymmentä'],
+        ['ninety', 'nitti', 'yhdeksänkymmentä'], ['one hundred', 'hundre', 'sata'],
+        ['two hundred', 'to hundre', 'kaksisataa'], ['five hundred', 'fem hundre', 'viisisataa'],
+        ['one thousand', 'tusen', 'tuhat']
       ];
-      return N.map(([en, no]) => W(cat, en, no, '#'));
+      return N.map(([en, no, fi]) => W(cat, en, no, fi, '#'));
     }
     
     function id(s) {
@@ -489,137 +676,218 @@
     // DATA
     const D = [
       // Construction talk
-      P('Construction (Byggeplass)', "Where is the foreman?", 'Hvor er formannen?'),
-      P('Construction (Byggeplass)', "Can you show me the drawings?", 'Kan du vise meg tegningene?'),
-      P('Construction (Byggeplass)', "What's the measurement here?", 'Hva er målet her?'),
-      P('Construction (Byggeplass)', 'Cut to length, please.', 'Kapp til lengde, takk.'),
-      P('Construction (Byggeplass)', 'Is it level/straight?', 'Er det i vater/rett?'),
-      P('Construction (Byggeplass)', 'Where do I get materials?', 'Hvor får jeg materialer?'),
-      P('Construction (Byggeplass)', 'Watch out!', 'Pass på!'),
-      P('Construction (Byggeplass)', 'I understand / I do not understand.', 'Jeg forstår / Jeg forstår ikke.'),
-      P('Construction (Byggeplass)', 'Can you speak slowly?', 'Kan du snakke sakte?'),
+      P('Construction (Byggeplass)', "Where is the foreman?", 'Hvor er formannen?', 'Missä on työnjohtaja?'),
+      P('Construction (Byggeplass)', "Can you show me the drawings?", 'Kan du vise meg tegningene?', 'Voitko näyttää minulle piirustukset?'),
+      P('Construction (Byggeplass)', "What's the measurement here?", 'Hva er målet her?', 'Mikä on mitta tässä?'),
+      P('Construction (Byggeplass)', 'Cut to length, please.', 'Kapp til lengde, takk.', 'Katkaise pituuteen, kiitos.'),
+      P('Construction (Byggeplass)', 'Is it level/straight?', 'Er det i vater/rett?', 'Onko se vaakatasossa/suora?'),
+      P('Construction (Byggeplass)', 'Where do I get materials?', 'Hvor får jeg materialer?', 'Mistä saan materiaalit?'),
+      P('Construction (Byggeplass)', 'Watch out!', 'Pass på!', 'Varo!'),
+      P('Construction (Byggeplass)', 'I understand / I do not understand.', 'Jeg forstår / Jeg forstår ikke.', 'Ymmärrän / En ymmärrä.'),
+      P('Construction (Byggeplass)', 'Can you speak slowly?', 'Kan du snakke sakte?', 'Voitko puhua hitaasti?'),
 
       // Hand tools
-      W('Tools & Equipment (Verktøy)', 'hammer', 'hammer', '🔨'),
-      W('Tools & Equipment (Verktøy)', 'sledgehammer', 'slegge', '🔨'),
-      W('Tools & Equipment (Verktøy)', 'nail puller/pry bar', 'brekkjern', '🛠️'),
-      W('Tools & Equipment (Verktøy)', 'chisel', 'meisel', '🪓'),
-      W('Tools & Equipment (Verktøy)', 'utility knife/box cutter', 'kniv', '🔪'),
-      W('Tools & Equipment (Verktøy)', 'tape measure', 'målebånd', '📏'),
-      W('Tools & Equipment (Verktøy)', 'spirit level', 'vater', '📐'),
-      W('Tools & Equipment (Verktøy)', 'speed square', 'vinkelhake', '📐'),
-      W('Tools & Equipment (Verktøy)', 'plumb bob/laser plumb', 'lodd', '📍'),
-      W('Tools & Equipment (Verktøy)', 'chalk line', 'snorslager/krittsnor', '🧵'),
+      W('Tools & Equipment (Verktøy)', 'hammer', 'hammer', 'vasara', '🔨'),
+      W('Tools & Equipment (Verktøy)', 'sledgehammer', 'slegge', 'moukari', '🔨'),
+      W('Tools & Equipment (Verktøy)', 'nail puller/pry bar', 'brekkjern', 'sorkkarauta', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'chisel', 'meisel', 'taltta', '🪓'),
+      W('Tools & Equipment (Verktøy)', 'utility knife/box cutter', 'kniv', 'veitsi', '🔪'),
+      W('Tools & Equipment (Verktøy)', 'tape measure', 'målebånd', 'mittanauha', '📏'),
+      W('Tools & Equipment (Verktøy)', 'spirit level', 'vater', 'vesivaaka', '📐'),
+      W('Tools & Equipment (Verktøy)', 'speed square', 'vinkelhake', 'kulmamitta', '📐'),
+      W('Tools & Equipment (Verktøy)', 'plumb bob/laser plumb', 'lodd', 'luotivaaka', '📍'),
+      W('Tools & Equipment (Verktøy)', 'chalk line', 'snorslager/krittsnor', 'merkintänaru', '🧵'),
 
       // Cutting & drilling
-      W('Tools & Equipment (Verktøy)', 'hand saw', 'håndsag', '🪚'),
-      W('Tools & Equipment (Verktøy)', 'circular saw', 'sirkelsag', '🪚'),
-      W('Tools & Equipment (Verktøy)', 'jigsaw', 'stikksag', '🪚'),
-      W('Tools & Equipment (Verktøy)', 'reciprocating saw', 'tigersag', '🪚'),
-      W('Tools & Equipment (Verktøy)', 'table saw', 'bordsag', '🪚'),
-      W('Tools & Equipment (Verktøy)', 'miter saw', 'gjærsag', '🪚'),
-      W('Tools & Equipment (Verktøy)', 'angle grinder', 'vinkelsliper', '🌀'),
-      W('Tools & Equipment (Verktøy)', 'oscillating multi-tool', 'multikutter', '🌀'),
-      W('Tools & Equipment (Verktøy)', 'drill/driver', 'bormaskin/skruddral', '🛠️'),
-      W('Tools & Equipment (Verktøy)', 'impact driver', 'slagtrekker', '🛠️'),
-      W('Tools & Equipment (Verktøy)', 'SDS rotary hammer', 'borhammer (SDS)', '🛠️'),
-      W('Tools & Equipment (Verktøy)', 'core drill', 'kjernebor', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'hand saw', 'håndsag', 'käsisaha', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'circular saw', 'sirkelsag', 'pyörösaha', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'jigsaw', 'stikksag', 'sähkösaha', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'reciprocating saw', 'tigersag', 'kääntösaha', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'table saw', 'bordsag', 'pöytäsaha', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'miter saw', 'gjærsag', 'jiirisaha', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'angle grinder', 'vinkelsliper', 'kulmahiomakone', '🌀'),
+      W('Tools & Equipment (Verktøy)', 'oscillating multi-tool', 'multikutter', 'monitoimityökalu', '🌀'),
+      W('Tools & Equipment (Verktøy)', 'drill/driver', 'bormaskin/skruddral', 'porakone/ruuvinväännin', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'impact driver', 'slagtrekker', 'iskuporakone', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'SDS rotary hammer', 'borhammer (SDS)', 'iskuvasara (SDS)', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'core drill', 'kjernebor', 'timanttikairat', '🛠️'),
 
       // Fastening
-      W('Tools & Equipment (Verktøy)', 'nail gun', 'spikerpistol', '🔫'),
-      W('Tools & Equipment (Verktøy)', 'staple gun', 'stiftepistol', '🔫'),
-      W('Tools & Equipment (Verktøy)', 'caulk gun', 'fuggepistol', '🧴'),
+      W('Tools & Equipment (Verktøy)', 'nail gun', 'spikerpistol', 'naulain', '🔫'),
+      W('Tools & Equipment (Verktøy)', 'staple gun', 'stiftepistol', 'nitoja', '🔫'),
+      W('Tools & Equipment (Verktøy)', 'caulk gun', 'fuggepistol', 'saumauspistooli', '🧴'),
 
       // Concrete & masonry
-      W('Tools & Equipment (Verktøy)', 'concrete mixer', 'betongblander', '🌀'),
-      W('Tools & Equipment (Verktøy)', 'rebar bender/cutter', 'armeringsknekker/kutter', '🔧'),
-      W('Tools & Equipment (Verktøy)', 'trowel', 'murerkjele/murerskje', '🧱'),
-      W('Tools & Equipment (Verktøy)', 'float', 'glattebrett', '🧱'),
-      W('Tools & Equipment (Verktøy)', 'plate compactor', 'platevibrator', '📳'),
-      W('Tools & Equipment (Verktøy)', 'jackhammer', 'meiselhammer/pigghammer', '💥'),
+      W('Tools & Equipment (Verktøy)', 'concrete mixer', 'betongblander', 'betonimylly', '🌀'),
+      W('Tools & Equipment (Verktøy)', 'rebar bender/cutter', 'armeringsknekker/kutter', 'raudoituksen taivuttaja', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'trowel', 'murerkjele/murerskje', 'lastalapio', '🧱'),
+      W('Tools & Equipment (Verktøy)', 'float', 'glattebrett', 'hierrin', '🧱'),
+      W('Tools & Equipment (Verktøy)', 'plate compactor', 'platevibrator', 'tärylämpö', '📳'),
+      W('Tools & Equipment (Verktøy)', 'jackhammer', 'meiselhammer/pigghammer', 'piikkirikki', '💥'),
 
       // Timber & finishing
-      W('Tools & Equipment (Verktøy)', 'planer', 'høvel', '🪵'),
-      W('Tools & Equipment (Verktøy)', 'router', 'overfres', '🪵'),
-      W('Tools & Equipment (Verktøy)', 'sander', 'sliper', '🪵'),
+      W('Tools & Equipment (Verktøy)', 'planer', 'høvel', 'höylä', '🪵'),
+      W('Tools & Equipment (Verktøy)', 'router', 'overfres', 'yläjyrsin', '🪵'),
+      W('Tools & Equipment (Verktøy)', 'sander', 'sliper', 'hiomakone', '🪵'),
 
       // Plumbing & electrical
-      W('Tools & Equipment (Verktøy)', 'pipe wrench', 'rørtang', '🔧'),
-      W('Tools & Equipment (Verktøy)', 'pipe cutter', 'rørkutter', '🔧'),
-      W('Tools & Equipment (Verktøy)', 'tube bender', 'rørbøyer', '🔧'),
-      W('Tools & Equipment (Verktøy)', 'wire stripper', 'avmantlingstang', '🔌'),
-      W('Tools & Equipment (Verktøy)', 'crimper', 'krympeverktøy', '🔌'),
-      W('Tools & Equipment (Verktøy)', 'multimeter', 'multimeter', '🔌'),
-      W('Tools & Equipment (Verktøy)', 'voltage tester', 'spenningstester', '🔌'),
-      W('Tools & Equipment (Verktøy)', 'conduit bender', 'k-rørbøyer', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'pipe wrench', 'rørtang', 'putkipihdit', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'pipe cutter', 'rørkutter', 'putkileikkuri', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'tube bender', 'rørbøyer', 'putkentaivutin', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'wire stripper', 'avmantlingstang', 'eristysraudat', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'crimper', 'krympeverktøy', 'puristustyökalu', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'multimeter', 'multimeter', 'yleismittari', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'voltage tester', 'spenningstester', 'jännitteenkoettelija', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'conduit bender', 'k-rørbøyer', 'sähköputken taivutin', '🔌'),
 
       // Lifting & access
-      W('Tools & Equipment (Verktøy)', 'ladder', 'stige', '🪜'),
-      W('Tools & Equipment (Verktøy)', 'scaffold', 'stillas', '🧗'),
-      W('Tools & Equipment (Verktøy)', 'wheelbarrow', 'trillebår', '🛒'),
+      W('Tools & Equipment (Verktøy)', 'ladder', 'stige', 'tikkaat', '🪜'),
+      W('Tools & Equipment (Verktøy)', 'scaffold', 'stillas', 'rakennustelineet', '🧗'),
+      W('Tools & Equipment (Verktøy)', 'wheelbarrow', 'trillebår', 'kottikärryt', '🛒'),
 
       // Site gear
-      W('Tools & Equipment (Verktøy)', 'generator', 'aggregat', '⚡'),
-      W('Tools & Equipment (Verktøy)', 'work light', 'arbeidslampe', '💡'),
-      W('Tools & Equipment (Verktøy)', 'extension cord', 'skjøteledning', '🔌'),
-      W('Tools & Equipment (Verktøy)', 'PPE (protective equipment)', 'verneutstyr', '🦺'),
-      W('Tools & Equipment (Verktøy)', 'safety helmet', 'vernehjelm', '🪖'),
-      W('Tools & Equipment (Verktøy)', 'hearing protection', 'hørselsvern', '🎧'),
-      W('Tools & Equipment (Verktøy)', 'dust mask/respirator', 'støvmaske/åndedrettsvern', '😷'),
+      W('Tools & Equipment (Verktøy)', 'generator', 'aggregat', 'generaattori', '⚡'),
+      W('Tools & Equipment (Verktøy)', 'work light', 'arbeidslampe', 'työvalo', '💡'),
+      W('Tools & Equipment (Verktøy)', 'extension cord', 'skjøteledning', 'jatkojohto', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'PPE (protective equipment)', 'verneutstyr', 'suojavarusteet', '🦺'),
+      W('Tools & Equipment (Verktøy)', 'safety helmet', 'vernehjelm', 'suojakypärä', '🪖'),
+      W('Tools & Equipment (Verktøy)', 'hearing protection', 'hørselsvern', 'kuulosuojaimet', '🎧'),
+      W('Tools & Equipment (Verktøy)', 'dust mask/respirator', 'støvmaske/åndedrettsvern', 'pölynaamari/hengityssuojain', '😷'),
 
       // Tools Gallery (Icons only, same vocab)
       ...[
-        ['hammer', 'hammer', '🔨'], ['sledgehammer', 'slegge', '🔨'], ['pry bar', 'brekkjern', '🛠️'],
-        ['chisel', 'meisel', '🪓'], ['utility knife', 'kniv', '🔪'], ['tape measure', 'målebånd', '📏'],
-        ['spirit level', 'vater', '📐'], ['square', 'vinkelhake', '📐'], ['chalk line', 'snorslager', '🧵'],
-        ['hand saw', 'håndsag', '🪚'], ['circular saw', 'sirkelsag', '🪚'], ['jigsaw', 'stikksag', '🪚'],
-        ['reciprocating saw', 'tigersag', '🪚'], ['table saw', 'bordsag', '🪚'], ['miter saw', 'gjærsag', '🪚'],
-        ['angle grinder', 'vinkelsliper', '🌀'], ['multi-tool', 'multikutter', '🌀'], ['drill', 'bormaskin', '🛠️'],
-        ['impact driver', 'slagtrekker', '🛠️'], ['SDS hammer', 'borhammer', '🛠️'], ['nail gun', 'spikerpistol', '🔫'],
-        ['concrete mixer', 'betongblander', '🌀'], ['rebar bender', 'armeringsknekker', '🔧'], ['trowel', 'murerskje', '🧱'],
-        ['plate compactor', 'platevibrator', '📳'], ['jackhammer', 'pigghammer', '💥'], ['planer', 'høvel', '🪵'],
-        ['router', 'overfres', '🪵'], ['sander', 'sliper', '🪵'], ['pipe wrench', 'rørtang', '🔧'],
-        ['pipe cutter', 'rørkutter', '🔧'], ['wire stripper', 'avmantlingstang', '🔌'], ['multimeter', 'multimeter', '🔌'],
-        ['ladder', 'stige', '🪜'], ['scaffold', 'stillas', '🧗'], ['wheelbarrow', 'trillebår', '🛒'],
-        ['generator', 'aggregat', '⚡'], ['work light', 'arbeidslampe', '💡'], ['extension cord', 'skjøteledning', '🔌'],
-        ['PPE', 'verneutstyr', '🦺'], ['safety helmet', 'vernehjelm', '🪖']
-      ].map(([en, no, icon]) => W('Tools Gallery (Ikoner)', en, no, icon)),
+        ['hammer', 'hammer', 'vasara', '🔨'], ['sledgehammer', 'slegge', 'moukari', '🔨'], ['pry bar', 'brekkjern', 'sorkkarauta', '🛠️'],
+        ['chisel', 'meisel', 'taltta', '🪓'], ['utility knife', 'kniv', 'veitsi', '🔪'], ['tape measure', 'målebånd', 'mittanauha', '📏'],
+        ['spirit level', 'vater', 'vesivaaka', '📐'], ['square', 'vinkelhake', 'kulmamitta', '📐'], ['chalk line', 'snorslager', 'merkintänaru', '🧵'],
+        ['hand saw', 'håndsag', 'käsisaha', '🪚'], ['circular saw', 'sirkelsag', 'pyörösaha', '🪚'], ['jigsaw', 'stikksag', 'sähkösaha', '🪚'],
+        ['reciprocating saw', 'tigersag', 'kääntösaha', '🪚'], ['table saw', 'bordsag', 'pöytäsaha', '🪚'], ['miter saw', 'gjærsag', 'jiirisaha', '🪚'],
+        ['angle grinder', 'vinkelsliper', 'kulmahiomakone', '🌀'], ['multi-tool', 'multikutter', 'monitoimityökalu', '🌀'], ['drill', 'bormaskin', 'porakone', '🛠️'],
+        ['impact driver', 'slagtrekker', 'iskuporakone', '🛠️'], ['SDS hammer', 'borhammer', 'iskuvasara', '🛠️'], ['nail gun', 'spikerpistol', 'naulain', '🔫'],
+        ['concrete mixer', 'betongblander', 'betonimylly', '🌀'], ['rebar bender', 'armeringsknekker', 'raudoituksen taivuttaja', '🔧'], ['trowel', 'murerskje', 'lastalapio', '🧱'],
+        ['plate compactor', 'platevibrator', 'tärylämpö', '📳'], ['jackhammer', 'pigghammer', 'piikkirikki', '💥'], ['planer', 'høvel', 'höylä', '🪵'],
+        ['router', 'overfres', 'yläjyrsin', '🪵'], ['sander', 'sliper', 'hiomakone', '🪵'], ['pipe wrench', 'rørtang', 'putkipihdit', '🔧'],
+        ['pipe cutter', 'rørkutter', 'putkileikkuri', '🔧'], ['wire stripper', 'avmantlingstang', 'eristysraudat', '🔌'], ['multimeter', 'multimeter', 'yleismittari', '🔌'],
+        ['ladder', 'stige', 'tikkaat', '🪜'], ['scaffold', 'stillas', 'rakennustelineet', '🧗'], ['wheelbarrow', 'trillebår', 'kottikärryt', '🛒'],
+        ['generator', 'aggregat', 'generaattori', '⚡'], ['work light', 'arbeidslampe', 'työvalo', '💡'], ['extension cord', 'skjøteledning', 'jatkojohto', '🔌'],
+        ['PPE', 'verneutstyr', 'suojavarusteet', '🦺'], ['safety helmet', 'vernehjelm', 'suojakypärä', '🪖']
+      ].map(([en, no, fi, icon]) => W('Tools Gallery (Ikoner)', en, no, fi, icon)),
 
       // Site slang
-      P('Site Slang (Bygge-slang)', 'All good / No worries.', 'Null stress.', '😎'),
-      P('Site Slang (Bygge-slang)', "Let's go / Go for it!", 'Kjør på!', '🏁'),
-      P('Site Slang (Bygge-slang)', 'Looks solid.', 'Ser bra ut.', '👍'),
-      P('Site Slang (Bygge-slang)', 'Take five.', 'Ta fem.', '🖐️'),
-      P('Site Slang (Bygge-slang)', 'On center / On the line.', 'På senter / på streken.', '📏'),
-      P('Site Slang (Bygge-slang)', 'Make it level / plumb.', 'I vater / i lodd.', '📐'),
-      P('Site Slang (Bygge-slang)', 'Hit it (with force).', "Gi'n juling.", '💪'),
+      P('Site Slang (Bygge-slang)', 'All good / No worries.', 'Null stress.', 'Ei huolta.', '😎'),
+      P('Site Slang (Bygge-slang)', "Let's go / Go for it!", 'Kjør på!', 'Mennään!', '🏁'),
+      P('Site Slang (Bygge-slang)', 'Looks solid.', 'Ser bra ut.', 'Näyttää hyvältä.', '👍'),
+      P('Site Slang (Bygge-slang)', 'Take five.', 'Ta fem.', 'Pidä tauko.', '🖐️'),
+      P('Site Slang (Bygge-slang)', 'On center / On the line.', 'På senter / på streken.', 'Keskellä / viivalla.', '📏'),
+      P('Site Slang (Bygge-slang)', 'Make it level / plumb.', 'I vater / i lodd.', 'Vaakaan / luotiin.', '📐'),
+      P('Site Slang (Bygge-slang)', 'Hit it (with force).', "Gi'n juling.", 'Lyö kovaa.', '💪'),
 
       // Small Talk
-      P('Small Talk (Småprat)', 'How are you?', 'Hvordan går det?'),
-      P('Small Talk (Småprat)', 'Nice to meet you.', 'Hyggelig å møte deg.'),
-      P('Small Talk (Småprat)', 'Do you speak English?', 'Snakker du engelsk?'),
-      P('Small Talk (Småprat)', 'See you tomorrow.', 'Vi sees i morgen.'),
+      P('Small Talk (Småprat)', 'How are you?', 'Hvordan går det?', 'Mitä kuuluu?'),
+      P('Small Talk (Småprat)', 'Nice to meet you.', 'Hyggelig å møte deg.', 'Hauska tavata.'),
+      P('Small Talk (Småprat)', 'Do you speak English?', 'Snakker du engelsk?', 'Puhutko englantia?'),
+      P('Small Talk (Småprat)', 'See you tomorrow.', 'Vi sees i morgen.', 'Nähdään huomenna.'),
+      P('Small Talk (Småprat)', 'Thank you very much.', 'Tusen takk.', 'Kiitos paljon.'),
+      P('Small Talk (Småprat)', "You're welcome.", 'Vær så god.', 'Ole hyvä.'),
+      P('Small Talk (Småprat)', 'Excuse me / Sorry.', 'Unnskyld.', 'Anteeksi.'),
+      P('Small Talk (Småprat)', 'Good morning / Good evening.', 'God morgen / God kveld.', 'Hyvää huomenta / Hyvää iltaa.'),
 
       // Shopping & Food
-      P('Shopping & Food (Butikk & Mat)', 'How much does it cost?', 'Hvor mye koster det?'),
-      W('Shopping & Food (Butikk & Mat)', 'card / cash / receipt', 'kort / kontanter / kvittering'),
-      W('Shopping & Food (Butikk & Mat)', 'bag', 'pose'),
+      P('Shopping & Food (Butikk & Mat)', 'How much does it cost?', 'Hvor mye koster det?', 'Paljonko tämä maksaa?'),
+      W('Shopping & Food (Butikk & Mat)', 'card / cash / receipt', 'kort / kontanter / kvittering', 'kortti / käteinen / kuitti'),
+      W('Shopping & Food (Butikk & Mat)', 'bag', 'pose', 'pussi'),
+      W('Shopping & Food (Butikk & Mat)', 'bread / milk / eggs', 'brød / melk / egg', 'leipä / maito / munat'),
+      W('Shopping & Food (Butikk & Mat)', 'water / coffee / beer', 'vann / kaffe / øl', 'vesi / kahvi / olut'),
+      P('Shopping & Food (Butikk & Mat)', 'Where is the nearest supermarket?', 'Hvor er nærmeste butikk?', 'Missä on lähin ruokakauppa?'),
+      P('Shopping & Food (Butikk & Mat)', 'Can I pay by card?', 'Kan jeg betale med kort?', 'Voinko maksaa kortilla?'),
+
+      // Money & Exchange - NEW CATEGORY
+      P('Money & Exchange (Penger & Veksling)', 'How much for one?', 'Hvor mye for én?', 'Paljonko yhdestä?'),
+      P('Money & Exchange (Penger & Veksling)', 'How much for two?', 'Hvor mye for to?', 'Paljonko kahdesta?'),
+      P('Money & Exchange (Penger & Veksling)', 'How much for three?', 'Hvor mye for tre?', 'Paljonko kolmesta?'),
+      P('Money & Exchange (Penger & Veksling)', 'How much for four?', 'Hvor mye for fire?', 'Paljonko neljästä?'),
+      P('Money & Exchange (Penger & Veksling)', 'How much for five?', 'Hvor mye for fem?', 'Paljonko viidestä?'),
+      P('Money & Exchange (Penger & Veksling)', 'Can you change 100?', 'Kan du veksle 100?', 'Voitko vaihtaa 100?'),
+      P('Money & Exchange (Penger & Veksling)', 'Can you change 200?', 'Kan du veksle 200?', 'Voitko vaihtaa 200?'),
+      P('Money & Exchange (Penger & Veksling)', 'Can you change 500?', 'Kan du veksle 500?', 'Voitko vaihtaa 500?'),
+      P('Money & Exchange (Penger & Veksling)', 'Can you change 1000?', 'Kan du veksle 1000?', 'Voitko vaihtaa 1000?'),
+      P('Money & Exchange (Penger & Veksling)', 'Have you got exchange?', 'Har dere veksling?', 'Onko teillä valuutanvaihtoa?'),
+      P('Money & Exchange (Penger & Veksling)', 'Where can I exchange money?', 'Hvor kan jeg veksle penger?', 'Missä voin vaihtaa rahaa?'),
+      P('Money & Exchange (Penger & Veksling)', "What's the exchange rate?", 'Hva er kursen?', 'Mikä on vaihtokurssi?'),
+      W('Money & Exchange (Penger & Veksling)', 'Norwegian Krone (NOK)', 'Norske kroner (NOK)', 'Norjan kruunu (NOK)', '💰'),
+      W('Money & Exchange (Penger & Veksling)', 'Euro (EUR)', 'Euro (EUR)', 'Euro (EUR)', '💶'),
+      W('Money & Exchange (Penger & Veksling)', 'US Dollar (USD)', 'Amerikanske dollar (USD)', 'Amerikan dollari (USD)', '💵'),
 
       // Transport
-      P('Transport (Transport)', 'Where is the bus stop?', 'Hvor er bussholdeplassen?'),
-      P('Transport (Transport)', 'Which line goes to …?', 'Hvilken linje går til …?'),
-      P('Transport (Transport)', 'A ticket to Oslo, please.', 'En billett til Oslo, takk.'),
+      P('Transport (Transport)', 'Where is the bus stop?', 'Hvor er bussholdeplassen?', 'Missä on bussipysäkki?'),
+      P('Transport (Transport)', 'Which line goes to …?', 'Hvilken linje går til …?', 'Mikä linja menee …?'),
+      P('Transport (Transport)', 'A ticket to Oslo, please.', 'En billett til Oslo, takk.', 'Lippu Osloon, kiitos.'),
+      P('Transport (Transport)', 'Where is the train station?', 'Hvor er jernbanestasjonen?', 'Missä on rautatieasema?'),
+      P('Transport (Transport)', 'How much is a ticket?', 'Hvor mye koster en billett?', 'Paljonko lippu maksaa?'),
 
       // Health & Emergency
-      P('Health & Emergency (Helse & Nød)', 'Call 113!', 'Ring 113!'),
-      P('Health & Emergency (Helse & Nød)', 'I need a doctor.', 'Jeg trenger en lege.'),
+      P('Health & Emergency (Helse & Nød)', 'Call 113!', 'Ring 113!', 'Soita 112!'),
+      P('Health & Emergency (Helse & Nød)', 'I need a doctor.', 'Jeg trenger en lege.', 'Tarvitsen lääkärin.'),
+      P('Health & Emergency (Helse & Nød)', 'Help!', 'Hjelp!', 'Apua!'),
+      P('Health & Emergency (Helse & Nød)', 'I am sick.', 'Jeg er syk.', 'Olen sairas.'),
 
       // Housing & Utilities
-      P('Housing & Utilities (Bolig & Tjenester)', 'Is electricity included?', 'Er strøm inkludert?'),
+      P('Housing & Utilities (Bolig & Tjenester)', 'Is electricity included?', 'Er strøm inkludert?', 'Sisältyykö sähkö?'),
+      P('Housing & Utilities (Bolig & Tjenester)', 'Where is the nearest laundry?', 'Hvor er nærmeste vaskeri?', 'Missä on lähin pesula?'),
 
       // Admin
-      W('Admin (Papirer & Kontor)', 'tax card', 'skattekort'),
-      W('Admin (Papirer & Kontor)', 'National ID no. / D-number', 'fødselsnummer / D-nummer'),
+      W('Admin (Papirer & Kontor)', 'tax card', 'skattekort', 'verokortti'),
+      W('Admin (Papirer & Kontor)', 'National ID no. / D-number', 'fødselsnummer / D-nummer', 'henkilötunnus'),
+      
+      // Quantities - NEW CATEGORY
+      P('Quantities (Mengder)', 'A little / A lot', 'Litt / Mye', 'Vähän / Paljon'),
+      P('Quantities (Mengder)', 'More / Less', 'Mer / Mindre', 'Enemmän / Vähemmän'),
+      P('Quantities (Mengder)', 'Half / Quarter', 'Halv / Kvart', 'Puoli / Neljännes'),
+      W('Quantities (Mengder)', 'kilogram / liter / meter', 'kilo / liter / meter', 'kilo / litra / metri'),
+
+      // Weather - NEW CATEGORY
+      W('Weather (Vær)', 'sunny', 'sol', 'aurinkoinen', '☀️'),
+      W('Weather (Vær)', 'rainy', 'regn', 'sateinen', '🌧️'),
+      W('Weather (Vær)', 'cloudy', 'overskyet', 'pilvinen', '☁️'),
+      W('Weather (Vær)', 'snow', 'snø', 'lumi', '❄️'),
+      W('Weather (Vær)', 'wind', 'vind', 'tuuli', '💨'),
+      P('Weather (Vær)', 'How is the weather?', 'Hvordan er været?', 'Millainen sää on?'),
+      P('Weather (Vær)', 'It is cold / warm.', 'Det er kaldt / varmt.', 'On kylmä / lämmin.'),
+
+      // Restaurants & Dining - NEW CATEGORY
+      P('Restaurants & Dining (Restaurant & Mat)', 'Table for two, please.', 'Bord for to, takk.', 'Pöytä kahdelle, kiitos.'),
+      P('Restaurants & Dining (Restaurant & Mat)', 'The menu, please.', 'Menyen, takk.', 'Ruokalista, kiitos.'),
+      P('Restaurants & Dining (Restaurant & Mat)', 'Can I have the bill?', 'Kan jeg få regningen?', 'Voinko saada laskun?'),
+      P('Restaurants & Dining (Restaurant & Mat)', 'Do you have vegetarian options?', 'Har dere vegetarmat?', 'Onko teillä kasvisvaihtoehtoja?'),
+      P('Restaurants & Dining (Restaurant & Mat)', 'This is delicious!', 'Dette er deilig!', 'Tämä on herkullista!'),
+
+      // Colors - NEW CATEGORY
+      W('Colors (Farger)', 'red', 'rød', 'punainen', '🔴'),
+      W('Colors (Farger)', 'blue', 'blå', 'sininen', '🔵'),
+      W('Colors (Farger)', 'green', 'grønn', 'vihreä', '🟢'),
+      W('Colors (Farger)', 'yellow', 'gul', 'keltainen', '🟡'),
+      W('Colors (Farger)', 'black', 'svart', 'musta', '⚫'),
+      W('Colors (Farger)', 'white', 'hvit', 'valkoinen', '⚪'),
+      W('Colors (Farger)', 'orange', 'oransje', 'oranssi', '🟠'),
+      W('Colors (Farger)', 'brown', 'brun', 'ruskea', '🟤'),
+
+      // Directions - NEW CATEGORY
+      W('Directions (Retninger)', 'left', 'venstre', 'vasen', '⬅️'),
+      W('Directions (Retninger)', 'right', 'høyre', 'oikea', '➡️'),
+      W('Directions (Retninger)', 'straight', 'rett fram', 'suoraan', '⬆️'),
+      W('Directions (Retninger)', 'back', 'tilbake', 'takaisin', '⬇️'),
+      W('Directions (Retninger)', 'north / south', 'nord / sør', 'pohjoinen / etelä', '🧭'),
+      W('Directions (Retninger)', 'east / west', 'øst / vest', 'itä / länsi', '🧭'),
+      P('Directions (Retninger)', 'Where is...?', 'Hvor er...?', 'Missä on...?'),
+      P('Directions (Retninger)', 'How do I get to...?', 'Hvordan kommer jeg til...?', 'Miten pääsen...?'),
+
+      // Bergen Places - NEW CATEGORY
+      P('Bergen Places (Bergen Steder)', 'Fish Market (Fisketorget)', 'Fisketorget', 'Kalatori', '🐟'),
+      P('Bergen Places (Bergen Steder)', 'Bryggen (UNESCO site)', 'Bryggen', 'Bryggen', '🏛️'),
+      P('Bergen Places (Bergen Steder)', 'Fløyen Mountain', 'Fløyen', 'Fløyen', '⛰️'),
+      P('Bergen Places (Bergen Steder)', 'Bergen Railway Station', 'Bergen stasjon', 'Bergenin rautatieasema', '🚂'),
+      P('Bergen Places (Bergen Steder)', 'Bergen University', 'Universitetet i Bergen', 'Bergenin yliopisto', '🎓'),
+      P('Bergen Places (Bergen Steder)', 'Torgallmenningen (main square)', 'Torgallmenningen', 'Torgallmenningen', '🏛️'),
+      P('Bergen Places (Bergen Steder)', 'Bergen Bus Station', 'Bergen busstasjon', 'Bergenin linja-autoasema', '🚌'),
 
       // Numbers
       ...Numbers('Numbers & Time (Tall & Tid)')
@@ -634,6 +902,13 @@
     const themeSel = document.getElementById('theme');
     const appEl = document.getElementById('app');
     const exportFav = document.getElementById('exportFav');
+    const targetLangSel = document.getElementById('targetLang');
+    const currencyCalcBtn = document.getElementById('currencyCalc');
+    const placesBtnEl = document.getElementById('placesBtn');
+    const currencyModal = document.getElementById('currencyModal');
+    const placesModal = document.getElementById('placesModal');
+    const closeCurrency = document.getElementById('closeCurrency');
+    const closePlaces = document.getElementById('closePlaces');
 
     // Theme initialization
     function initTheme() {
@@ -649,6 +924,14 @@
       state.theme = e.target.value;
       localStorage.setItem('nqt_theme', state.theme);
       initTheme();
+    });
+
+    // Language switching
+    targetLangSel.value = state.targetLang;
+    targetLangSel.addEventListener('change', (e) => {
+      state.targetLang = e.target.value;
+      localStorage.setItem('nqt_targetLang', state.targetLang);
+      render();
     });
 
     // Category chips
@@ -700,13 +983,159 @@
       showToast('Favorites exported successfully!');
     });
 
+    // Currency Calculator
+    currencyCalcBtn.addEventListener('click', () => {
+      currencyModal.style.display = 'block';
+      fetchExchangeRates();
+    });
+
+    closeCurrency.addEventListener('click', () => {
+      currencyModal.style.display = 'none';
+    });
+
+    // Bergen Places
+    placesBtnEl.addEventListener('click', () => {
+      placesModal.style.display = 'block';
+      renderPlaces();
+    });
+
+    closePlaces.addEventListener('click', () => {
+      placesModal.style.display = 'none';
+    });
+
+    // Close modals on outside click
+    window.addEventListener('click', (e) => {
+      if (e.target === currencyModal) {
+        currencyModal.style.display = 'none';
+      }
+      if (e.target === placesModal) {
+        placesModal.style.display = 'none';
+      }
+    });
+
+    // Currency conversion
+    async function fetchExchangeRates() {
+      const now = Date.now();
+      const lastUpdate = state.lastRateUpdate ? parseInt(state.lastRateUpdate) : 0;
+      const oneHour = 60 * 60 * 1000;
+
+      if (now - lastUpdate < oneHour && Object.keys(state.exchangeRates).length > 0) {
+        return; // Use cached rates
+      }
+
+      try {
+        // Using exchangerate-api.com free tier (no auth needed)
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/NOK');
+        const data = await response.json();
+        
+        if (data && data.rates) {
+          state.exchangeRates = data.rates;
+          state.lastRateUpdate = now.toString();
+          localStorage.setItem('nqt_exchangeRates', JSON.stringify(state.exchangeRates));
+          localStorage.setItem('nqt_lastRateUpdate', state.lastRateUpdate);
+          showToast('Exchange rates updated successfully!');
+        }
+      } catch (error) {
+        console.error('Failed to fetch exchange rates:', error);
+        showToast('Failed to update exchange rates. Using cached data.', true);
+      }
+    }
+
+    function convertCurrency() {
+      const fromAmount = parseFloat(document.getElementById('fromAmount').value);
+      const fromCurrency = document.getElementById('fromCurrency').value;
+      const toCurrency = document.getElementById('toCurrency').value;
+      
+      if (!fromAmount || isNaN(fromAmount)) {
+        showToast('Please enter a valid amount', true);
+        return;
+      }
+
+      // Simple conversion using NOK as base
+      let result;
+      if (Object.keys(state.exchangeRates).length === 0) {
+        // Fallback rates if API is unavailable
+        const fallbackRates = { EUR: 0.089, USD: 0.094, GBP: 0.075, SEK: 1.03, DKK: 0.66, NOK: 1 };
+        const fromRate = fallbackRates[fromCurrency] || 1;
+        const toRate = fallbackRates[toCurrency] || 1;
+        result = (fromAmount / fromRate) * toRate;
+      } else {
+        const fromRate = state.exchangeRates[fromCurrency] || 1;
+        const toRate = state.exchangeRates[toCurrency] || 1;
+        result = (fromAmount / fromRate) * toRate;
+      }
+
+      document.getElementById('toAmount').value = result.toFixed(2);
+      document.getElementById('rateInfo').textContent = `1 ${fromCurrency} = ${(1 / (state.exchangeRates[fromCurrency] || 1) * (state.exchangeRates[toCurrency] || 1)).toFixed(4)} ${toCurrency}`;
+    }
+
+    document.getElementById('convertBtn')?.addEventListener('click', convertCurrency);
+    document.getElementById('swapBtn')?.addEventListener('click', () => {
+      const fromCurrency = document.getElementById('fromCurrency').value;
+      const toCurrency = document.getElementById('toCurrency').value;
+      document.getElementById('fromCurrency').value = toCurrency;
+      document.getElementById('toCurrency').value = fromCurrency;
+      convertCurrency();
+    });
+
+    document.getElementById('fromAmount')?.addEventListener('input', convertCurrency);
+
+    // Bergen Places
+    function renderPlaces() {
+      const placesList = document.getElementById('placesList');
+      const mapContainer = document.getElementById('mapContainer');
+      
+      // Display saved places
+      if (state.savedPlaces.length === 0) {
+        placesList.innerHTML = '<p style="color: var(--muted); padding: 10px;">No places saved yet. Add your favorite Bergen spots!</p>';
+      } else {
+        placesList.innerHTML = state.savedPlaces.map((place, idx) => `
+          <div class="place-item">
+            <div>
+              <strong>${esc(place.name)}</strong>
+              <span class="badge">${esc(place.category)}</span>
+            </div>
+            <button class="btn" onclick="deletePlace(${idx})">Delete</button>
+          </div>
+        `).join('');
+      }
+
+      // Note: Mapbox requires API key, so we'll show a placeholder
+      mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted);">🗺️ Map integration (add Mapbox API key to enable)</div>';
+    }
+
+    window.deletePlace = function(idx) {
+      state.savedPlaces.splice(idx, 1);
+      localStorage.setItem('nqt_savedPlaces', JSON.stringify(state.savedPlaces));
+      renderPlaces();
+      showToast('Place deleted');
+    };
+
+    document.getElementById('addPlaceBtn')?.addEventListener('click', () => {
+      const name = document.getElementById('newPlaceName').value.trim();
+      const category = document.getElementById('newPlaceCategory').value.trim();
+      
+      if (!name || !category) {
+        showToast('Please enter both name and category', true);
+        return;
+      }
+
+      state.savedPlaces.push({ name, category });
+      localStorage.setItem('nqt_savedPlaces', JSON.stringify(state.savedPlaces));
+      document.getElementById('newPlaceName').value = '';
+      document.getElementById('newPlaceCategory').value = '';
+      renderPlaces();
+      showToast('Place added successfully!');
+    });
+
     function speak(text) {
       if (!('speechSynthesis' in window)) {
         showToast('Text-to-speech is not supported in this browser.', true);
         return;
       }
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'nb-NO';
+      // Set language based on target language
+      utterance.lang = state.targetLang === 'fi' ? 'fi-FI' : 'nb-NO';
       utterance.rate = 1;
       utterance.pitch = 1;
       speechSynthesis.cancel();
@@ -794,7 +1223,8 @@
         const ql = state.q.toLowerCase();
         items = items.filter(x => 
           x.en.toLowerCase().includes(ql) || 
-          x.no.toLowerCase().includes(ql)
+          x.no.toLowerCase().includes(ql) ||
+          (x.fi && x.fi.toLowerCase().includes(ql))
         );
       }
       if (state.onlyFav) {
@@ -818,7 +1248,9 @@
       list.innerHTML = items.map(it => {
         const fav = state.favs.has(it.id);
         const en = highlight(it.en, state.q);
-        const no = highlight(it.no, state.q);
+        // Use selected target language
+        const targetText = state.targetLang === 'fi' ? (it.fi || it.no) : it.no;
+        const targetHighlighted = highlight(targetText, state.q);
         const icon = it.icon ? `<span class="icon" aria-hidden="true">${esc(it.icon)}</span>` : '';
         const slangBadge = it.cat.includes('Slang') ? '<span class="badge">slang</span>' : '';
         
@@ -826,7 +1258,7 @@
           <div class="row">
             <div class="no">
               ${icon}
-              <span>${no}</span>
+              <span>${targetHighlighted}</span>
               ${slangBadge}
             </div>
             <div class="actions">
@@ -863,11 +1295,15 @@
           if (!item) return;
           
           const act = btn.getAttribute('data-act');
+          const targetText = state.targetLang === 'fi' ? (item.fi || item.no) : item.no;
           
           if (act === 'speak') {
-            speak(item.no);
+            speak(targetText);
+            // Track learning progress
+            state.learnProgress[id] = (state.learnProgress[id] || 0) + 1;
+            localStorage.setItem('nqt_learnProgress', JSON.stringify(state.learnProgress));
           } else if (act === 'copy-no') {
-            copy(item.no);
+            copy(targetText);
           } else if (act === 'fav') {
             if (state.favs.has(id)) {
               state.favs.delete(id);
