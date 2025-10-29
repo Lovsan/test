@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Norsk QuickTalk – Daily Norwegian for Work & Life</title>
+  <meta name="description" content="Single-file pocket phrasebook for Norway. Construction-first vocab, daily life phrases, search, TTS, icons, and favorites. Works anywhere as a static page." />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --muted: #9aa4b2;
+      --text: #e8eef6;
+      --accent: #ff7a18;
+      --accent-2: #6ee7b7;
+      --card: #141821;
+      --chip: #242a36;
+      --border: #2b3240;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --radius: 14px;
+      --pad: 14px;
+      --gap: 10px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans", Arial;
+    }
+    
+    [data-theme="light"] {
+      --bg: #f7f7fb;
+      --panel: #ffffff;
+      --muted: #5b6573;
+      --text: #0f1222;
+      --accent: #0d9488;
+      --accent-2: #ef4444;
+      --card: #ffffff;
+      --chip: #f0f2f7;
+      --border: #e5e7eb;
+      --shadow: 0 6px 18px rgba(2,8,23,.08);
+    }
+    
+    [data-theme="black-orange"] {
+      --bg: #0a0a0b;
+      --panel: #0f0f11;
+      --muted: #a8b0bd;
+      --text: #f0f3f9;
+      --accent: #ff7a18;
+      --accent-2: #ffb703;
+      --card: #111217;
+      --chip: #1a1d24;
+      --border: #242834;
+      --shadow: 0 12px 26px rgba(0,0,0,.5);
+    }
+    
+    html, body {
+      height: 100%;
+    }
+    
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(255,122,24,.06), transparent),
+                  radial-gradient(1000px 600px at 110% 10%, rgba(110,231,183,.05), transparent),
+                  var(--bg);
+      color: var(--text);
+    }
+    
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr;
+      margin-bottom: 16px;
+    }
+    
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #ffb703);
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow);
+    }
+    
+    .logo svg {
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.25));
+    }
+    
+    h1 {
+      font-weight: 800;
+      font-size: 1.35rem;
+      margin: 0;
+      letter-spacing: .3px;
+    }
+    
+    .subtitle {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: var(--panel);
+      padding: 10px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    
+    .search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+    
+    .search input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    
+    .search input::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+    }
+    
+    .btn, select {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn:hover, select:hover {
+      border-color: var(--accent);
+    }
+    
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #ffb703);
+      color: #0b0b0b;
+      font-weight: 700;
+      border: 0;
+    }
+    
+    .btn.primary:hover {
+      opacity: 0.9;
+    }
+    
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .toggle input[type="checkbox"] {
+      cursor: pointer;
+    }
+    
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+    }
+    
+    .chip {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+    
+    .chip:hover {
+      border-color: var(--accent);
+    }
+    
+    .chip.active {
+      background: linear-gradient(135deg, rgba(255,122,24,.15), rgba(110,231,183,.15));
+      border-color: transparent;
+      color: var(--text);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    
+    @media(min-width: 720px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--pad);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+      border-color: var(--accent);
+    }
+    
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    
+    .no {
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    
+    .no .icon {
+      font-size: 1.25rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+    
+    .en {
+      color: var(--muted);
+    }
+    
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .iconbtn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      padding: 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text);
+    }
+    
+    .iconbtn:hover {
+      border-color: var(--accent);
+      background: var(--chip);
+    }
+    
+    .iconbtn[aria-pressed="true"] {
+      outline: 2px solid var(--accent);
+      background: var(--chip);
+    }
+    
+    .footer {
+      margin: 22px 0 40px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    
+    .cheats {
+      display: grid;
+      gap: 6px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-top: 8px;
+    }
+    
+    .cheats b {
+      color: var(--text);
+    }
+    
+    mark {
+      background: linear-gradient(90deg, rgba(255,122,24,.25), rgba(110,231,183,.25));
+      border-radius: 4px;
+      padding: 0 2px;
+    }
+    
+    .hide-en .en {
+      filter: blur(5px);
+      transition: filter 0.2s ease;
+    }
+    
+    .hide-en .card:hover .en {
+      filter: none;
+    }
+    
+    .small {
+      font-size: .85rem;
+    }
+    
+    .badge {
+      font-size: .7rem;
+      padding: .15rem .4rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--muted);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+    
+    .empty-state svg {
+      opacity: 0.5;
+      margin-bottom: 10px;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app" data-theme="black-orange">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12a8 8 0 1116 0v5a3 3 0 01-3 3h-1l-2-2h-4l-2 2H7a3 3 0 01-3-3v-5z" fill="white" fill-opacity=".9"/>
+            <path d="M9 12h6M8 9h8M10 15h4" stroke="#0f0f0f" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Norsk QuickTalk</h1>
+          <div class="subtitle">Construction heavy. Daily life ready. Search, audio, icons, and a dash of site slang.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M11 19a8 8 0 100-16 8 8 0 000 16z" stroke="currentColor" stroke-width="1.5" opacity=".7"/>
+            <path d="M21 21l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+          </svg>
+          <input id="q" placeholder="Search English or Norwegian… (e.g. 'impact driver' / 'slagtrekker')" aria-label="Search phrases" />
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="hideEn" aria-label="Hide English translations"/>
+          <span>Hide English (learn mode)</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="onlyFav" aria-label="Show only favorites"/>
+          <span>Favorites</span>
+        </label>
+        <select id="theme" aria-label="Select theme">
+          <option value="black-orange">Black + Orange</option>
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+        <button class="btn primary" id="exportFav" aria-label="Export favorites">Export ★</button>
+      </div>
+      <div class="chips" id="chips" role="tablist"></div>
+    </header>
+    <main>
+      <section class="grid" id="list" aria-live="polite" role="region" aria-label="Phrase list"></section>
+      
+      <div class="footer">
+        <div><b>Tip:</b> tap the star to save, the triangle to hear Norwegian (TTS needs a browser voice for <code>nb-NO</code>), and the copy icon to grab text. Items in <span class="badge">slang</span> are site-talk—use with a smile.</div>
+        <div class="cheats small">
+          <div><b>Norwegian sounds:</b> <b>å</b> ~ "aw" (as in <i>law</i>), <b>ø</b> ~ "uh/eur" (French <i>peur</i>), <b>æ</b> ~ "a" in <i>cat</i>. <b>kj</b> ≈ soft <i>hy</i>, <b>skj</b>/<b>sj</b> ≈ "sh".</div>
+          <div><b>Emergency numbers:</b> Police <b>112</b>, Ambulance <b>113</b>, Fire <b>110</b>.</div>
+          <div><b>Patterns:</b> <b>Jeg trenger …</b> (I need …) • <b>Hvor er …?</b> (Where is …?) • <b>Kan du …?</b> (Can you …?) • <b>Er det i vater?</b> (Is it level?)</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    'use strict';
+    
+    const state = {
+      q: '',
+      cat: 'Construction (Byggeplass)',
+      hideEn: false,
+      onlyFav: false,
+      theme: localStorage.getItem('nqt_theme') || 'black-orange',
+      favs: new Set(JSON.parse(localStorage.getItem('nqt_favs') || '[]')),
+    };
+
+    const CATS = [
+      'Construction (Byggeplass)',
+      'Tools & Equipment (Verktøy)',
+      'Tools Gallery (Ikoner)',
+      'Site Slang (Bygge-slang)',
+      'Small Talk (Småprat)',
+      'Shopping & Food (Butikk & Mat)',
+      'Transport (Transport)',
+      'Health & Emergency (Helse & Nød)',
+      'Housing & Utilities (Bolig & Tjenester)',
+      'Admin (Papirer & Kontor)',
+      'Numbers & Time (Tall & Tid)'
+    ];
+
+    // Helper functions to create phrase and word objects
+    function P(cat, en, no, icon = '') {
+      return { id: id(en + no + cat), cat, type: 'phrase', en, no, icon };
+    }
+    
+    function W(cat, en, no, icon = '') {
+      return { id: id(en + no + cat), cat, type: 'word', en, no, icon };
+    }
+    
+    function Numbers(cat) {
+      const N = [
+        ['zero', 'null'], ['one', 'én'], ['two', 'to'], ['three', 'tre'],
+        ['four', 'fire'], ['five', 'fem'], ['six', 'seks'], ['seven', 'sju'],
+        ['eight', 'åtte'], ['nine', 'ni'], ['ten', 'ti'], ['eleven', 'elleve'],
+        ['twelve', 'tolv'], ['thirteen', 'tretten'], ['fourteen', 'fjorten'],
+        ['fifteen', 'femten'], ['sixteen', 'seksten'], ['seventeen', 'sytten'],
+        ['eighteen', 'atten'], ['nineteen', 'nitten'], ['twenty', 'tjue']
+      ];
+      return N.map(([en, no]) => W(cat, en, no, '#'));
+    }
+    
+    function id(s) {
+      // Use modern approach instead of deprecated unescape()
+      const bytes = new TextEncoder().encode(s);
+      const binString = String.fromCharCode(...bytes);
+      return btoa(binString).slice(0, 12);
+    }
+
+    // DATA
+    const D = [
+      // Construction talk
+      P('Construction (Byggeplass)', "Where is the foreman?", 'Hvor er formannen?'),
+      P('Construction (Byggeplass)', "Can you show me the drawings?", 'Kan du vise meg tegningene?'),
+      P('Construction (Byggeplass)', "What's the measurement here?", 'Hva er målet her?'),
+      P('Construction (Byggeplass)', 'Cut to length, please.', 'Kapp til lengde, takk.'),
+      P('Construction (Byggeplass)', 'Is it level/straight?', 'Er det i vater/rett?'),
+      P('Construction (Byggeplass)', 'Where do I get materials?', 'Hvor får jeg materialer?'),
+      P('Construction (Byggeplass)', 'Watch out!', 'Pass på!'),
+      P('Construction (Byggeplass)', 'I understand / I do not understand.', 'Jeg forstår / Jeg forstår ikke.'),
+      P('Construction (Byggeplass)', 'Can you speak slowly?', 'Kan du snakke sakte?'),
+
+      // Hand tools
+      W('Tools & Equipment (Verktøy)', 'hammer', 'hammer', '🔨'),
+      W('Tools & Equipment (Verktøy)', 'sledgehammer', 'slegge', '🔨'),
+      W('Tools & Equipment (Verktøy)', 'nail puller/pry bar', 'brekkjern', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'chisel', 'meisel', '🪓'),
+      W('Tools & Equipment (Verktøy)', 'utility knife/box cutter', 'kniv', '🔪'),
+      W('Tools & Equipment (Verktøy)', 'tape measure', 'målebånd', '📏'),
+      W('Tools & Equipment (Verktøy)', 'spirit level', 'vater', '📐'),
+      W('Tools & Equipment (Verktøy)', 'speed square', 'vinkelhake', '📐'),
+      W('Tools & Equipment (Verktøy)', 'plumb bob/laser plumb', 'lodd', '📍'),
+      W('Tools & Equipment (Verktøy)', 'chalk line', 'snorslager/krittsnor', '🧵'),
+
+      // Cutting & drilling
+      W('Tools & Equipment (Verktøy)', 'hand saw', 'håndsag', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'circular saw', 'sirkelsag', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'jigsaw', 'stikksag', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'reciprocating saw', 'tigersag', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'table saw', 'bordsag', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'miter saw', 'gjærsag', '🪚'),
+      W('Tools & Equipment (Verktøy)', 'angle grinder', 'vinkelsliper', '🌀'),
+      W('Tools & Equipment (Verktøy)', 'oscillating multi-tool', 'multikutter', '🌀'),
+      W('Tools & Equipment (Verktøy)', 'drill/driver', 'bormaskin/skruddral', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'impact driver', 'slagtrekker', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'SDS rotary hammer', 'borhammer (SDS)', '🛠️'),
+      W('Tools & Equipment (Verktøy)', 'core drill', 'kjernebor', '🛠️'),
+
+      // Fastening
+      W('Tools & Equipment (Verktøy)', 'nail gun', 'spikerpistol', '🔫'),
+      W('Tools & Equipment (Verktøy)', 'staple gun', 'stiftepistol', '🔫'),
+      W('Tools & Equipment (Verktøy)', 'caulk gun', 'fuggepistol', '🧴'),
+
+      // Concrete & masonry
+      W('Tools & Equipment (Verktøy)', 'concrete mixer', 'betongblander', '🌀'),
+      W('Tools & Equipment (Verktøy)', 'rebar bender/cutter', 'armeringsknekker/kutter', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'trowel', 'murerkjele/murerskje', '🧱'),
+      W('Tools & Equipment (Verktøy)', 'float', 'glattebrett', '🧱'),
+      W('Tools & Equipment (Verktøy)', 'plate compactor', 'platevibrator', '📳'),
+      W('Tools & Equipment (Verktøy)', 'jackhammer', 'meiselhammer/pigghammer', '💥'),
+
+      // Timber & finishing
+      W('Tools & Equipment (Verktøy)', 'planer', 'høvel', '🪵'),
+      W('Tools & Equipment (Verktøy)', 'router', 'overfres', '🪵'),
+      W('Tools & Equipment (Verktøy)', 'sander', 'sliper', '🪵'),
+
+      // Plumbing & electrical
+      W('Tools & Equipment (Verktøy)', 'pipe wrench', 'rørtang', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'pipe cutter', 'rørkutter', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'tube bender', 'rørbøyer', '🔧'),
+      W('Tools & Equipment (Verktøy)', 'wire stripper', 'avmantlingstang', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'crimper', 'krympeverktøy', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'multimeter', 'multimeter', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'voltage tester', 'spenningstester', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'conduit bender', 'k-rørbøyer', '🔌'),
+
+      // Lifting & access
+      W('Tools & Equipment (Verktøy)', 'ladder', 'stige', '🪜'),
+      W('Tools & Equipment (Verktøy)', 'scaffold', 'stillas', '🧗'),
+      W('Tools & Equipment (Verktøy)', 'wheelbarrow', 'trillebår', '🛒'),
+
+      // Site gear
+      W('Tools & Equipment (Verktøy)', 'generator', 'aggregat', '⚡'),
+      W('Tools & Equipment (Verktøy)', 'work light', 'arbeidslampe', '💡'),
+      W('Tools & Equipment (Verktøy)', 'extension cord', 'skjøteledning', '🔌'),
+      W('Tools & Equipment (Verktøy)', 'PPE (protective equipment)', 'verneutstyr', '🦺'),
+      W('Tools & Equipment (Verktøy)', 'safety helmet', 'vernehjelm', '🪖'),
+      W('Tools & Equipment (Verktøy)', 'hearing protection', 'hørselsvern', '🎧'),
+      W('Tools & Equipment (Verktøy)', 'dust mask/respirator', 'støvmaske/åndedrettsvern', '😷'),
+
+      // Tools Gallery (Icons only, same vocab)
+      ...[
+        ['hammer', 'hammer', '🔨'], ['sledgehammer', 'slegge', '🔨'], ['pry bar', 'brekkjern', '🛠️'],
+        ['chisel', 'meisel', '🪓'], ['utility knife', 'kniv', '🔪'], ['tape measure', 'målebånd', '📏'],
+        ['spirit level', 'vater', '📐'], ['square', 'vinkelhake', '📐'], ['chalk line', 'snorslager', '🧵'],
+        ['hand saw', 'håndsag', '🪚'], ['circular saw', 'sirkelsag', '🪚'], ['jigsaw', 'stikksag', '🪚'],
+        ['reciprocating saw', 'tigersag', '🪚'], ['table saw', 'bordsag', '🪚'], ['miter saw', 'gjærsag', '🪚'],
+        ['angle grinder', 'vinkelsliper', '🌀'], ['multi-tool', 'multikutter', '🌀'], ['drill', 'bormaskin', '🛠️'],
+        ['impact driver', 'slagtrekker', '🛠️'], ['SDS hammer', 'borhammer', '🛠️'], ['nail gun', 'spikerpistol', '🔫'],
+        ['concrete mixer', 'betongblander', '🌀'], ['rebar bender', 'armeringsknekker', '🔧'], ['trowel', 'murerskje', '🧱'],
+        ['plate compactor', 'platevibrator', '📳'], ['jackhammer', 'pigghammer', '💥'], ['planer', 'høvel', '🪵'],
+        ['router', 'overfres', '🪵'], ['sander', 'sliper', '🪵'], ['pipe wrench', 'rørtang', '🔧'],
+        ['pipe cutter', 'rørkutter', '🔧'], ['wire stripper', 'avmantlingstang', '🔌'], ['multimeter', 'multimeter', '🔌'],
+        ['ladder', 'stige', '🪜'], ['scaffold', 'stillas', '🧗'], ['wheelbarrow', 'trillebår', '🛒'],
+        ['generator', 'aggregat', '⚡'], ['work light', 'arbeidslampe', '💡'], ['extension cord', 'skjøteledning', '🔌'],
+        ['PPE', 'verneutstyr', '🦺'], ['safety helmet', 'vernehjelm', '🪖']
+      ].map(([en, no, icon]) => W('Tools Gallery (Ikoner)', en, no, icon)),
+
+      // Site slang
+      P('Site Slang (Bygge-slang)', 'All good / No worries.', 'Null stress.', '😎'),
+      P('Site Slang (Bygge-slang)', "Let's go / Go for it!", 'Kjør på!', '🏁'),
+      P('Site Slang (Bygge-slang)', 'Looks solid.', 'Ser bra ut.', '👍'),
+      P('Site Slang (Bygge-slang)', 'Take five.', 'Ta fem.', '🖐️'),
+      P('Site Slang (Bygge-slang)', 'On center / On the line.', 'På senter / på streken.', '📏'),
+      P('Site Slang (Bygge-slang)', 'Make it level / plumb.', 'I vater / i lodd.', '📐'),
+      P('Site Slang (Bygge-slang)', 'Hit it (with force).', "Gi'n juling.", '💪'),
+
+      // Small Talk
+      P('Small Talk (Småprat)', 'How are you?', 'Hvordan går det?'),
+      P('Small Talk (Småprat)', 'Nice to meet you.', 'Hyggelig å møte deg.'),
+      P('Small Talk (Småprat)', 'Do you speak English?', 'Snakker du engelsk?'),
+      P('Small Talk (Småprat)', 'See you tomorrow.', 'Vi sees i morgen.'),
+
+      // Shopping & Food
+      P('Shopping & Food (Butikk & Mat)', 'How much does it cost?', 'Hvor mye koster det?'),
+      W('Shopping & Food (Butikk & Mat)', 'card / cash / receipt', 'kort / kontanter / kvittering'),
+      W('Shopping & Food (Butikk & Mat)', 'bag', 'pose'),
+
+      // Transport
+      P('Transport (Transport)', 'Where is the bus stop?', 'Hvor er bussholdeplassen?'),
+      P('Transport (Transport)', 'Which line goes to …?', 'Hvilken linje går til …?'),
+      P('Transport (Transport)', 'A ticket to Oslo, please.', 'En billett til Oslo, takk.'),
+
+      // Health & Emergency
+      P('Health & Emergency (Helse & Nød)', 'Call 113!', 'Ring 113!'),
+      P('Health & Emergency (Helse & Nød)', 'I need a doctor.', 'Jeg trenger en lege.'),
+
+      // Housing & Utilities
+      P('Housing & Utilities (Bolig & Tjenester)', 'Is electricity included?', 'Er strøm inkludert?'),
+
+      // Admin
+      W('Admin (Papirer & Kontor)', 'tax card', 'skattekort'),
+      W('Admin (Papirer & Kontor)', 'National ID no. / D-number', 'fødselsnummer / D-nummer'),
+
+      // Numbers
+      ...Numbers('Numbers & Time (Tall & Tid)')
+    ].flat();
+
+    // UI elements
+    const list = document.getElementById('list');
+    const chips = document.getElementById('chips');
+    const q = document.getElementById('q');
+    const hideEn = document.getElementById('hideEn');
+    const onlyFav = document.getElementById('onlyFav');
+    const themeSel = document.getElementById('theme');
+    const appEl = document.getElementById('app');
+    const exportFav = document.getElementById('exportFav');
+
+    // Theme initialization
+    function initTheme() {
+      if (state.theme === 'dark') {
+        appEl.removeAttribute('data-theme');
+      } else {
+        appEl.setAttribute('data-theme', state.theme);
+      }
+      themeSel.value = state.theme;
+    }
+
+    themeSel.addEventListener('change', (e) => {
+      state.theme = e.target.value;
+      localStorage.setItem('nqt_theme', state.theme);
+      initTheme();
+    });
+
+    // Category chips
+    CATS.forEach(cat => {
+      const c = document.createElement('button');
+      c.className = 'chip';
+      c.textContent = cat;
+      c.setAttribute('role', 'tab');
+      c.setAttribute('aria-selected', cat === state.cat);
+      c.onclick = () => {
+        state.cat = cat;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+      chips.appendChild(c);
+    });
+
+    // Search and toggles
+    q.addEventListener('input', (e) => {
+      state.q = e.target.value.trim();
+      render();
+    });
+
+    hideEn.checked = state.hideEn;
+    onlyFav.checked = state.onlyFav;
+
+    hideEn.addEventListener('change', (e) => {
+      state.hideEn = e.target.checked;
+      render();
+    });
+
+    onlyFav.addEventListener('change', (e) => {
+      state.onlyFav = e.target.checked;
+      render();
+    });
+
+    exportFav.addEventListener('click', () => {
+      const favItems = D.filter(x => state.favs.has(x.id));
+      if (favItems.length === 0) {
+        showToast('No favorites to export yet!', true);
+        return;
+      }
+      const blob = new Blob([JSON.stringify(favItems, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'norsk_quicktalk_favorites.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('Favorites exported successfully!');
+    });
+
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        showToast('Text-to-speech is not supported in this browser.', true);
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'nb-NO';
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    }
+
+    function copy(txt) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => {
+          showToast('Copied to clipboard!');
+        }).catch(err => {
+          console.error('Failed to copy text:', err);
+          showToast('Failed to copy. Please try again.', true);
+        });
+      } else {
+        showToast('Clipboard not supported in this browser.', true);
+      }
+    }
+
+    // Simple toast notification system
+    function showToast(message, isError = false) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (isError ? ' toast-error' : '');
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 12px 20px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        color: var(--text);
+        font-weight: 600;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+      `;
+      if (isError) {
+        toast.style.borderColor = 'var(--accent-2)';
+      } else {
+        toast.style.borderColor = 'var(--accent)';
+      }
+      
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+
+    function highlight(hay, needle) {
+      if (!needle) return esc(hay);
+      const re = new RegExp('(' + needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+      return esc(hay).replace(re, '<mark>$1</mark>');
+    }
+
+    // HTML escape map for security
+    const ESC_MAP = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+
+    function esc(s) {
+      return s.replace(/[&<>"']/g, c => ESC_MAP[c]);
+    }
+
+    function render() {
+      // Update chip active states
+      [...chips.children].forEach(chip => {
+        const isActive = chip.textContent === state.cat;
+        chip.classList.toggle('active', isActive);
+        chip.setAttribute('aria-selected', isActive);
+      });
+
+      // Filter items
+      let items = D.filter(x => x.cat === state.cat);
+      if (state.q) {
+        const ql = state.q.toLowerCase();
+        items = items.filter(x => 
+          x.en.toLowerCase().includes(ql) || 
+          x.no.toLowerCase().includes(ql)
+        );
+      }
+      if (state.onlyFav) {
+        items = items.filter(x => state.favs.has(x.id));
+      }
+
+      // Render list
+      if (items.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke-width="1.5"/>
+              <path d="M8 12h8M12 8v8" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <p>No phrases found. Try a different search or category.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = items.map(it => {
+        const fav = state.favs.has(it.id);
+        const en = highlight(it.en, state.q);
+        const no = highlight(it.no, state.q);
+        const icon = it.icon ? `<span class="icon" aria-hidden="true">${esc(it.icon)}</span>` : '';
+        const slangBadge = it.cat.includes('Slang') ? '<span class="badge">slang</span>' : '';
+        
+        return `<article class="card ${state.hideEn ? 'hide-en' : ''}" data-id="${it.id}">
+          <div class="row">
+            <div class="no">
+              ${icon}
+              <span>${no}</span>
+              ${slangBadge}
+            </div>
+            <div class="actions">
+              <button class="iconbtn" title="Play Norwegian" data-act="speak" aria-label="Play Norwegian pronunciation">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7-11-7z"/>
+                </svg>
+              </button>
+              <button class="iconbtn" title="Copy Norwegian" data-act="copy-no" aria-label="Copy Norwegian text">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor"/>
+                  <rect x="4" y="4" width="11" height="11" rx="2" stroke="currentColor" opacity=".6"/>
+                </svg>
+              </button>
+              <button class="iconbtn" title="Favorite" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Add to favorites'}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="${fav ? 'none' : 'currentColor'}">
+                  <path d="M12 17.3l-5.3 3.1 1.4-6-4.6-4 6.1-.5L12 4l2.4 5.9 6.1.5-4.6 4 1.4 6z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="en">${en}</div>
+        </article>`;
+      }).join('');
+
+      // Attach event listeners
+      list.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          
+          const id = card.getAttribute('data-id');
+          const item = D.find(x => x.id === id);
+          if (!item) return;
+          
+          const act = btn.getAttribute('data-act');
+          
+          if (act === 'speak') {
+            speak(item.no);
+          } else if (act === 'copy-no') {
+            copy(item.no);
+          } else if (act === 'fav') {
+            if (state.favs.has(id)) {
+              state.favs.delete(id);
+            } else {
+              state.favs.add(id);
+            }
+            localStorage.setItem('nqt_favs', JSON.stringify([...state.favs]));
+            render();
+          }
+        });
+      });
+    }
+
+    // Initialize and render
+    initTheme();
+    render();
+  </script>
+</body>
+</html>
