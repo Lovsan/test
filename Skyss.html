@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tickets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            padding: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .tab {
+            padding: 12px 0;
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .tab.active {
+            color: #0066cc;
+            border-bottom: 2px solid #0066cc;
+        }
+        
+        .discount-banner {
+            background-color: #f0f7ff;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 500;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .ticket {
+            padding: 20px;
+        }
+        
+        .validity {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .validity-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .validity-date {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .zone {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #0066cc;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .days-left {
+            background-color: #e6f2ff;
+            color: #0066cc;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .ticket-type {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .price {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .details-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .details-label {
+            color: #666;
+        }
+        
+        .footer {
+            padding: 20px;
+            border-top: 1px solid #eaeaea;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .company {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .note {
+            font-size: 12px;
+            margin-top: 10px;
+            color: #888;
+        }
+        
+        .edit-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .edit-section h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #0052a3;
+        }
+        
+        .ticket-id {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My tickets</h1>
+            <div class="tabs">
+                <div class="tab active">ACTIVE</div>
+                <div class="tab">EXPIRED</div>
+            </div>
+        </header>
+        
+        <div class="discount-banner">
+            Save more on your next ticket!<br>
+            Check your discount here.
+        </div>
+        
+        <div class="ticket">
+            <div class="validity">
+                <div class="validity-label">Valid to</div>
+                <div class="validity-date" id="validity-date">4.11.2025 6.47</div>
+                <div class="zone">Zone A*</div>
+                <div class="days-left" id="days-left">3 DAYS LEFT</div>
+            </div>
+            
+            <div class="ticket-type">Adult - 7 days</div>
+            <div class="price" id="price">kr 272,00</div>
+            
+            <table class="details-table">
+                <tr>
+                    <td class="details-label">Sum</td>
+                    <td id="sum">kr 272,00</td>
+                </tr>
+                <tr>
+                    <td class="details-label">12% vat. kr 29,14</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="details-label">Vat.base kr 242,86</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="details-label">Paid by:</td>
+                    <td id="payment-method">card</td>
+                </tr>
+                <tr>
+                    <td class="details-label">Purchased:</td>
+                    <td id="purchase-date">28.10.2025, 6.47</td>
+                </tr>
+            </table>
+            
+            <div class="ticket-id">992 051 825 MVA</div>
+        </div>
+        
+        <div class="footer">
+            <div class="company">skyss</div>
+            * For age 18-66.
+        </div>
+    </div>
+    
+    <div class="edit-section">
+        <h2>Edit Ticket Information</h2>
+        <div class="form-group">
+            <label for="validity-date-input">Valid to Date & Time</label>
+            <input type="datetime-local" id="validity-date-input" value="2025-11-04T06:47">
+        </div>
+        
+        <div class="form-group">
+            <label for="purchase-date-input">Purchase Date & Time</label>
+            <input type="datetime-local" id="purchase-date-input" value="2025-10-28T06:47">
+        </div>
+        
+        <div class="form-group">
+            <label for="price-input">Price (kr)</label>
+            <input type="number" id="price-input" value="272" step="0.01">
+        </div>
+        
+        <div class="form-group">
+            <label for="payment-method-select">Payment Method</label>
+            <select id="payment-method-select">
+                <option value="card">card</option>
+                <option value="cash">cash</option>
+                <option value="mobile">mobile</option>
+                <option value="voucher">voucher</option>
+            </select>
+        </div>
+        
+        <button id="update-button">Update Ticket</button>
+    </div>
+
+    <script>
+        document.getElementById('update-button').addEventListener('click', function() {
+            // Update validity date
+            const validityDateInput = document.getElementById('validity-date-input').value;
+            const validityDate = new Date(validityDateInput);
+            const formattedValidityDate = `${validityDate.getDate()}.${validityDate.getMonth()+1}.${validityDate.getFullYear()} ${validityDate.getHours()}.${validityDate.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('validity-date').textContent = formattedValidityDate;
+            
+            // Update days left
+            const today = new Date();
+            const timeDiff = validityDate.getTime() - today.getTime();
+            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            document.getElementById('days-left').textContent = `${daysLeft} DAYS LEFT`;
+            
+            // Update purchase date
+            const purchaseDateInput = document.getElementById('purchase-date-input').value;
+            const purchaseDate = new Date(purchaseDateInput);
+            const formattedPurchaseDate = `${purchaseDate.getDate()}.${purchaseDate.getMonth()+1}.${purchaseDate.getFullYear()}, ${purchaseDate.getHours()}.${purchaseDate.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('purchase-date').textContent = formattedPurchaseDate;
+            
+            // Update price and sum
+            const price = parseFloat(document.getElementById('price-input').value).toFixed(2);
+            document.getElementById('price').textContent = `kr ${price.replace('.', ',')}`;
+            document.getElementById('sum').textContent = `kr ${price.replace('.', ',')}`;
+            
+            // Update payment method
+            const paymentMethod = document.getElementById('payment-method-select').value;
+            document.getElementById('payment-method').textContent = paymentMethod;
+        });
+    </script>
+</body>
+</html>
