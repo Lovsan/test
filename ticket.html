@@ -13,218 +13,160 @@
         }
         
         body {
-            background-color: #f2f2f7;
-            color: #1c1c1e;
+            background-color: #f5f5f5;
+            color: #333;
             line-height: 1.5;
-            padding: 0;
-            margin: 0;
-            min-height: 100vh;
-        }
-        
-        .app-container {
+            padding: 16px;
             max-width: 500px;
             margin: 0 auto;
-            background-color: #ffffff;
-            min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow-x: hidden;
         }
         
-        .status-bar {
-            height: 44px;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 16px;
-            font-size: 14px;
-            font-weight: 600;
-            border-bottom: 1px solid #e5e5ea;
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .time {
-            font-weight: 600;
+        header {
+            padding: 20px 20px 0;
         }
         
-        .status-icons {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .header {
-            padding: 16px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e5e5ea;
-        }
-        
-        .header h1 {
-            font-size: 34px;
+        h1 {
+            font-size: 24px;
             font-weight: 700;
             margin-bottom: 16px;
         }
         
         .tabs {
             display: flex;
-            background-color: #f2f2f7;
-            border-radius: 10px;
-            padding: 4px;
+            border-bottom: 1px solid #e0e0e0;
         }
         
         .tab {
-            flex: 1;
-            text-align: center;
-            padding: 8px 0;
+            padding: 12px 0;
+            margin-right: 24px;
             font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            cursor: pointer;
         }
         
         .tab.active {
-            background-color: #ffffff;
-            color: #007aff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid #000;
         }
         
         .discount-banner {
-            background: linear-gradient(135deg, #007aff, #5856d6);
-            color: white;
-            padding: 16px;
+            background-color: #f8f9fa;
+            padding: 16px 20px;
             text-align: center;
-            margin: 16px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            font-weight: 500;
+            border-bottom: 1px solid #e0e0e0;
         }
         
-        .ticket-card {
-            background-color: #ffffff;
-            margin: 16px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        .ticket {
+            padding: 20px;
         }
         
-        .validity-section {
-            padding: 16px;
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
-            border-bottom: 1px solid #e5e5ea;
+        .validity {
+            margin-bottom: 20px;
         }
         
         .validity-label {
-            font-size: 14px;
-            color: #8e8e93;
-            margin-bottom: 4px;
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
         }
         
         .validity-date {
-            font-size: 20px;
             font-weight: 600;
+            font-size: 18px;
             margin-bottom: 8px;
         }
         
-        .zone-badge {
-            display: inline-block;
-            background-color: #007aff;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 14px;
+        .zone {
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         
         .days-left {
-            display: inline-block;
-            background-color: rgba(0, 122, 255, 0.1);
-            color: #007aff;
+            background-color: #e8f4fd;
+            color: #0066cc;
             padding: 6px 12px;
-            border-radius: 20px;
+            border-radius: 16px;
             font-size: 14px;
             font-weight: 600;
+            display: inline-block;
         }
         
-        .ticket-details {
-            padding: 16px;
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 20px 0;
         }
         
         .ticket-type {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 18px;
             margin-bottom: 8px;
         }
         
         .price {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 16px;
-            color: #1c1c1e;
+            margin-bottom: 20px;
         }
         
         .details-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 16px;
-        }
-        
-        .details-table tr {
-            border-bottom: 1px solid #f2f2f7;
-        }
-        
-        .details-table tr:last-child {
-            border-bottom: none;
+            margin-bottom: 20px;
         }
         
         .details-table td {
-            padding: 12px 0;
+            padding: 8px 0;
         }
         
         .details-label {
-            color: #8e8e93;
-            font-size: 16px;
+            color: #666;
         }
         
         .details-value {
-            font-weight: 500;
             text-align: right;
-        }
-        
-        .ticket-id {
-            font-size: 14px;
-            color: #8e8e93;
-            text-align: center;
-            margin-top: 16px;
+            font-weight: 500;
         }
         
         .footer {
-            padding: 16px;
+            padding: 20px;
             text-align: center;
-            background-color: #f2f2f7;
-            margin-top: 16px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
         }
         
         .company {
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             font-size: 18px;
+        }
+        
+        .ticket-id {
+            font-size: 14px;
+            margin-bottom: 8px;
         }
         
         .note {
             font-size: 14px;
-            color: #8e8e93;
         }
         
         .edit-section {
-            background-color: #ffffff;
-            padding: 16px;
-            margin: 16px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         .edit-section h2 {
-            font-size: 22px;
-            font-weight: 600;
             margin-bottom: 16px;
+            font-size: 18px;
         }
         
         .form-group {
@@ -235,225 +177,153 @@
             display: block;
             margin-bottom: 6px;
             font-weight: 500;
-            color: #1c1c1e;
         }
         
         input, select {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #c7c7cc;
-            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            background-color: #ffffff;
-            transition: border-color 0.2s;
         }
         
-        input:focus, select:focus {
-            outline: none;
-            border-color: #007aff;
-        }
-        
-        .update-button {
-            background-color: #007aff;
+        button {
+            background-color: #0066cc;
             color: white;
             border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 17px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             transition: background-color 0.2s;
-            margin-top: 8px;
         }
         
-        .update-button:hover {
-            background-color: #0056cc;
+        button:hover {
+            background-color: #0052a3;
         }
         
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #ffffff;
-            border-top: 1px solid #e5e5ea;
+        .app-bar {
             display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            font-size: 12px;
-            color: #8e8e93;
+            margin-bottom: 16px;
         }
         
-        .nav-item.active {
-            color: #007aff;
+        .app-title {
+            font-weight: 600;
+            font-size: 18px;
         }
         
-        .nav-icon {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-        
-        .content {
-            padding-bottom: 70px;
-        }
-        
-        @media (max-width: 500px) {
-            .app-container {
-                box-shadow: none;
-            }
+        .app-icons {
+            display: flex;
+            gap: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Status Bar (like a real mobile app) -->
-        <div class="status-bar">
-            <div class="time" id="current-time">19:28</div>
-            <div class="status-icons">
-                <span>📶</span>
-                <span>📡</span>
-                <span>🔋</span>
-            </div>
+    <!-- App Bar -->
+    <div class="app-bar">
+        <div class="app-title">My Tickets</div>
+        <div class="app-icons">
+            <span>🔍</span>
+            <span>⋮</span>
         </div>
-        
-        <!-- Header with tabs -->
-        <div class="header">
-            <h1>My tickets</h1>
+    </div>
+    
+    <!-- Ticket Container -->
+    <div class="container">
+        <header>
             <div class="tabs">
                 <div class="tab active">ACTIVE</div>
                 <div class="tab">EXPIRED</div>
             </div>
+        </header>
+        
+        <div class="discount-banner">
+            Save more on your next ticket!<br>
+            Check your discount here.
         </div>
         
-        <div class="content">
-            <!-- Discount Banner -->
-            <div class="discount-banner">
-                Save more on your next ticket!<br>
-                Check your discount here.
+        <div class="ticket">
+            <div class="validity">
+                <div class="validity-label">Valid to</div>
+                <div class="validity-date" id="validity-date">4.11.2025 6.47</div>
+                <div class="zone">Zone A*</div>
+                <div class="days-left" id="days-left">3 DAYS LEFT</div>
             </div>
             
-            <!-- Ticket Card -->
-            <div class="ticket-card">
-                <div class="validity-section">
-                    <div class="validity-label">Valid to</div>
-                    <div class="validity-date" id="validity-date">4.11.2025 6.47</div>
-                    <div class="zone-badge">Zone A*</div>
-                    <div class="days-left" id="days-left">3 DAYS LEFT</div>
-                </div>
-                
-                <div class="ticket-details">
-                    <div class="ticket-type">Adult - 7 days</div>
-                    <div class="price" id="price">kr 272,00</div>
-                    
-                    <table class="details-table">
-                        <tr>
-                            <td class="details-label">Sum</td>
-                            <td class="details-value" id="sum">kr 272,00</td>
-                        </tr>
-                        <tr>
-                            <td class="details-label">12% vat. kr 29,14</td>
-                            <td class="details-value"></td>
-                        </tr>
-                        <tr>
-                            <td class="details-label">Vat.base kr 242,86</td>
-                            <td class="details-value"></td>
-                        </tr>
-                        <tr>
-                            <td class="details-label">Paid by:</td>
-                            <td class="details-value" id="payment-method">card</td>
-                        </tr>
-                        <tr>
-                            <td class="details-label">Purchased:</td>
-                            <td class="details-value" id="purchase-date">28.10.2025, 6.47</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="ticket-id">992 051 825 MVA</div>
-                </div>
-            </div>
+            <div class="divider"></div>
             
-            <!-- Footer -->
+            <div class="ticket-type">Adult - 7 days</div>
+            <div class="price" id="price">kr 272,00</div>
+            
+            <table class="details-table">
+                <tr>
+                    <td class="details-label">Sum</td>
+                    <td class="details-value" id="sum">kr 272,00</td>
+                </tr>
+                <tr>
+                    <td class="details-label">12% vat. kr 29,14</td>
+                    <td class="details-value"></td>
+                </tr>
+                <tr>
+                    <td class="details-label">Vat.base kr 242,86</td>
+                    <td class="details-value"></td>
+                </tr>
+                <tr>
+                    <td class="details-label">Paid by:</td>
+                    <td class="details-value" id="payment-method">card</td>
+                </tr>
+                <tr>
+                    <td class="details-label">Purchased:</td>
+                    <td class="details-value" id="purchase-date">28.10.2025, 6.47</td>
+                </tr>
+            </table>
+            
+            <div class="divider"></div>
+            
             <div class="footer">
                 <div class="company">skyss</div>
+                <div class="ticket-id">992 051 825 MVA</div>
                 <div class="note">* For age 18-66.</div>
-            </div>
-            
-            <!-- Edit Section -->
-            <div class="edit-section">
-                <h2>Edit Ticket Information</h2>
-                <div class="form-group">
-                    <label for="validity-date-input">Valid to Date & Time</label>
-                    <input type="datetime-local" id="validity-date-input" value="2025-11-04T06:47">
-                </div>
-                
-                <div class="form-group">
-                    <label for="purchase-date-input">Purchase Date & Time</label>
-                    <input type="datetime-local" id="purchase-date-input" value="2025-10-28T06:47">
-                </div>
-                
-                <div class="form-group">
-                    <label for="price-input">Price (kr)</label>
-                    <input type="number" id="price-input" value="272" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="payment-method-select">Payment Method</label>
-                    <select id="payment-method-select">
-                        <option value="card">card</option>
-                        <option value="cash">cash</option>
-                        <option value="mobile">mobile</option>
-                        <option value="voucher">voucher</option>
-                    </select>
-                </div>
-                
-                <button class="update-button" id="update-button">Update Ticket</button>
-            </div>
-        </div>
-        
-        <!-- Bottom Navigation Bar -->
-        <div class="nav-bar">
-            <div class="nav-item active">
-                <div class="nav-icon">🎫</div>
-                <div>Tickets</div>
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">🗺️</div>
-                <div>Map</div>
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">🔔</div>
-                <div>Alerts</div>
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">👤</div>
-                <div>Profile</div>
             </div>
         </div>
     </div>
+    
+    <!-- Edit Section -->
+    <div class="edit-section">
+        <h2>Edit Ticket Information</h2>
+        <div class="form-group">
+            <label for="validity-date-input">Valid to Date & Time</label>
+            <input type="datetime-local" id="validity-date-input" value="2025-11-04T06:47">
+        </div>
+        
+        <div class="form-group">
+            <label for="purchase-date-input">Purchase Date & Time</label>
+            <input type="datetime-local" id="purchase-date-input" value="2025-10-28T06:47">
+        </div>
+        
+        <div class="form-group">
+            <label for="price-input">Price (kr)</label>
+            <input type="number" id="price-input" value="272" step="0.01">
+        </div>
+        
+        <div class="form-group">
+            <label for="payment-method-select">Payment Method</label>
+            <select id="payment-method-select">
+                <option value="card">card</option>
+                <option value="cash">cash</option>
+                <option value="mobile">mobile</option>
+                <option value="voucher">voucher</option>
+            </select>
+        </div>
+        
+        <button id="update-button">Update Ticket</button>
+    </div>
 
     <script>
-        // Update current time
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
-                              now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('current-time').textContent = timeString;
-        }
-        
-        // Update time immediately and then every minute
-        updateTime();
-        setInterval(updateTime, 60000);
-        
-        // Update ticket information
         document.getElementById('update-button').addEventListener('click', function() {
             // Update validity date
             const validityDateInput = document.getElementById('validity-date-input').value;
@@ -465,7 +335,7 @@
             const today = new Date();
             const timeDiff = validityDate.getTime() - today.getTime();
             const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            document.getElementById('days-left').textContent = `${daysLeft} DAY${daysLeft !== 1 ? 'S' : ''} LEFT`;
+            document.getElementById('days-left').textContent = `${daysLeft} DAYS LEFT`;
             
             // Update purchase date
             const purchaseDateInput = document.getElementById('purchase-date-input').value;
@@ -475,9 +345,8 @@
             
             // Update price and sum
             const price = parseFloat(document.getElementById('price-input').value).toFixed(2);
-            const formattedPrice = price.replace('.', ',');
-            document.getElementById('price').textContent = `kr ${formattedPrice}`;
-            document.getElementById('sum').textContent = `kr ${formattedPrice}`;
+            document.getElementById('price').textContent = `kr ${price.replace('.', ',')}`;
+            document.getElementById('sum').textContent = `kr ${price.replace('.', ',')}`;
             
             // Update payment method
             const paymentMethod = document.getElementById('payment-method-select').value;
@@ -492,15 +361,6 @@
         tabs.forEach(tab => {
             tab.addEventListener('click', function() {
                 tabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-        
-        // Navigation item switching
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                navItems.forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
             });
         });
