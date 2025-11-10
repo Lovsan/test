@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mine billetter | Skyss</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Mobile Topbar -->
+  <div class="md:hidden flex justify-between items-center bg-red-600 text-white p-4">
+    <h1 class="text-xl font-bold">skyss</h1>
+    <button onclick="toggleFullscreen()" class="text-sm bg-white text-red-600 px-3 py-1 rounded">Fullskjerm</button>
+  </div>
+
+  <!-- Layout -->
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar -->
+    <aside class="hidden md:block w-64 bg-red-600 text-white p-6">
+      <h1 class="text-2xl font-bold mb-8">skyss</h1>
+      <nav class="space-y-4">
+        <a href="#" class="block hover:text-gray-200">Dashboard</a>
+        <a href="#" class="block hover:text-gray-200">Billetter</a>
+        <a href="#" class="block hover:text-gray-200">Hjelp</a>
+        <a href="#" class="block hover:text-gray-200">Logg ut</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl md:text-2xl font-semibold">Mine billetter</h2>
+        <button onclick="toggleFullscreen()" class="hidden md:inline-block text-sm bg-red-600 text-white px-3 py-1 rounded">Fullskjerm</button>
+      </div>
+
+      <!-- Status Tabs -->
+      <div class="flex space-x-4 mb-6">
+        <button class="px-4 py-2 border border-black font-semibold">AKTIV</button>
+        <button class="px-4 py-2 border border-black">UTLØPT</button>
+      </div>
+
+      <!-- Ticket Card -->
+      <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-md">
+        <p class="text-lg font-bold mb-2">Gyldig til 4.11.2025 06:47</p>
+        <p class="text-md mb-2">Sone A*</p>
+
+        <div class="bg-orange-500 text-white px-4 py-2 rounded mb-4 w-fit font-bold">
+          3 DAGER IGJEN
+        </div>
+
+        <div class="space-y-1 text-sm">
+          <p>Voksen – 7 dager: <strong>kr 272,00</strong></p>
+          <p>Sum: kr 272,00</p>
+          <p>12% mva: kr 29,14</p>
+          <p>Mva-grunnlag: kr 242,86</p>
+          <p>Betalt med: kort</p>
+          <p>Kjøpt: 28.10.2025, 06:47</p>
+        </div>
+
+        <div class="mt-6 text-xs text-gray-500">
+          <p>skyss</p>
+          <p>992 051 825 MVA</p>
+          <p>* For alder 18–66.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Fullscreen Script -->
+  <script>
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  </script>
+</body>
+</html>
