@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mine billetter | Skyss</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Sidebar -->
+  <div class="flex min-h-screen">
+    <aside class="w-64 bg-red-600 text-white p-6">
+      <h1 class="text-2xl font-bold mb-8">skyss</h1>
+      <nav class="space-y-4">
+        <a href="#" class="block hover:text-gray-200">Dashboard</a>
+        <a href="#" class="block hover:text-gray-200">Billetter</a>
+        <a href="#" class="block hover:text-gray-200">Hjelp</a>
+        <a href="#" class="block hover:text-gray-200">Logg ut</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <h2 class="text-2xl font-semibold mb-4">Mine billetter</h2>
+
+      <!-- Status Tabs -->
+      <div class="flex space-x-4 mb-6">
+        <button class="px-4 py-2 border border-black font-semibold">AKTIV</button>
+        <button class="px-4 py-2 border border-black">UTLØPT</button>
+      </div>
+
+      <!-- Ticket Card -->
+      <div class="bg-white border border-gray-300 rounded-lg p-6 max-w-md shadow-md">
+        <p class="text-lg font-bold mb-2">Gyldig til 4.11.2025 06:47</p>
+        <p class="text-md mb-2">Sone A*</p>
+
+        <div class="bg-orange-500 text-white px-4 py-2 rounded mb-4 w-fit font-bold">
+          3 DAGER IGJEN
+        </div>
+
+        <div class="space-y-1 text-sm">
+          <p>Voksen – 7 dager: <strong>kr 272,00</strong></p>
+          <p>Sum: kr 272,00</p>
+          <p>12% mva: kr 29,14</p>
+          <p>Mva-grunnlag: kr 242,86</p>
+          <p>Betalt med: kort</p>
+          <p>Kjøpt: 28.10.2025, 06:47</p>
+        </div>
+
+        <div class="mt-6 text-xs text-gray-500">
+          <p>skyss</p>
+          <p>992 051 825 MVA</p>
+          <p>* For alder 18–66.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
