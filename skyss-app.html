@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #f5f5f5;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #e0e0e0;
+            --success: #34a853;
+            --warning: #f9a825;
+            --danger: #ea4335;
+            --card-bg: #ffffff;
+            --app-bg: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--app-bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 15px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-actions button i {
+            margin-right: 5px;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .sidebar {
+            flex: 0 0 250px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .content {
+            flex: 1;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Ticket Styles */
+        .ticket-nav {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ticket-nav button {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-light);
+            border-bottom: 2px solid transparent;
+        }
+
+        .ticket-nav button.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .ticket-card {
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .ticket-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .ticket-expiry {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .ticket-zone {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .days-left {
+            display: inline-block;
+            background-color: var(--warning);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .ticket-type {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .ticket-price {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .ticket-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .ticket-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ticket-details table td {
+            padding: 5px 0;
+        }
+
+        .ticket-details table tr:last-child td {
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            font-weight: 600;
+        }
+
+        .ticket-footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Helpdesk Styles */
+        .helpdesk-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .conversations {
+            flex: 0 0 300px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .conversations-header {
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .conversation-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .conversation-item:hover {
+            background-color: var(--secondary);
+        }
+
+        .conversation-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .conversation-user {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .conversation-preview {
+            font-size: 14px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-item.active .conversation-preview {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .messages {
+            flex: 1;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .messages-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            margin-left: auto;
+        }
+
+        .message-content {
+            padding: 10px 15px;
+            border-radius: 18px;
+            background-color: var(--secondary);
+        }
+
+        .message.user .message-content {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message.user .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .messages-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 30px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Login/Register Forms */
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                flex: 1;
+            }
+
+            .helpdesk-container {
+                flex-direction: column;
+            }
+
+            .conversations {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>SKYSS</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active">My Tickets</a></li>
+                        <li><a href="#">Buy Tickets</a></li>
+                        <li><a href="#">Helpdesk</a></li>
+                        <li><a href="#">Invoices</a></li>
+                    </ul>
+                </nav>
+                <div class="user-actions">
+                    <button><i class="fas fa-bell"></i></button>
+                    <button><i class="fas fa-user"></i> John Doe</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h3>My Account</h3>
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-ticket-alt"></i> My Tickets</a></li>
+                    <li><a href="#"><i class="fas fa-shopping-cart"></i> Buy Tickets</a></li>
+                    <li><a href="#"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                    <li><a href="#"><i class="fas fa-comments"></i> Helpdesk</a></li>
+                    <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Page Title -->
+                <div class="card">
+                    <h1>My Tickets</h1>
+                </div>
+
+                <!-- Ticket Navigation -->
+                <div class="card">
+                    <div class="ticket-nav">
+                        <button class="active">ACTIVE</button>
+                        <button>EXPIRED</button>
+                    </div>
+
+                    <!-- Discount Banner -->
+                    <div style="background: linear-gradient(to right, #1a73e8, #0d47a1); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-weight: 500;">Save more on your next ticket!</p>
+                        <p style="margin: 5px 0 0 0; font-size: 14px;">Check your discount here.</p>
+                    </div>
+
+                    <!-- Active Ticket -->
+                    <div class="ticket-card card">
+                        <div class="ticket-status">ACTIVE</div>
+                        <p class="ticket-expiry">Valid to 4.11.2025 6.47</p>
+                        <p class="ticket-zone">Zone A*</p>
+                        <div class="days-left">3 DAYS LEFT</div>
+                        <h3 class="ticket-type">Adult - 7 days</h3>
+                        <p class="ticket-price">kr 272,00</p>
+                        
+                        <div class="ticket-details">
+                            <table>
+                                <tr>
+                                    <td>Sum</td>
+                                    <td><strong>kr 272,00</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>12% vat. kr 29,14</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Vat.base kr 242,86</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Paid by: card</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Purchased: 28.10.2025, 6.47</td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="ticket-footer">
+                            <p>skyss</p>
+                            <p>992 051 825 MVA</p>
+                            <p>* For age 18-66.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Helpdesk Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Helpdesk</h2>
+                    </div>
+                    
+                    <div class="helpdesk-container">
+                        <div class="conversations">
+                            <div class="conversations-header">
+                                Conversations
+                            </div>
+                            <div class="conversation-list">
+                                <div class="conversation-item active">
+                                    <div class="conversation-user">Support Team</div>
+                                    <div class="conversation-preview">Hello, how can we help you today?</div>
+                                </div>
+                                <div class="conversation-item">
+                                    <div class="conversation-user">Billing Department</div>
+                                    <div class="conversation-preview">Your invoice #1000007362 has been processed</div>
+                                </div>
+                                <div class="conversation-item">
+                                    <div class="conversation-user">Technical Support</div>
+                                    <div class="conversation-preview">We've resolved the app issue you reported</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="messages">
+                            <div class="messages-header">
+                                Support Team
+                            </div>
+                            <div class="messages-body">
+                                <div class="message user">
+                                    <div class="message-content">
+                                        Hello, I have a question about my ticket validity.
+                                    </div>
+                                    <div class="message-time">Today, 10:24 AM</div>
+                                </div>
+                                <div class="message">
+                                    <div class="message-content">
+                                        Hi John, how can I help you with your ticket?
+                                    </div>
+                                    <div class="message-time">Today, 10:26 AM</div>
+                                </div>
+                                <div class="message user">
+                                    <div class="message-content">
+                                        My ticket expires in 3 days, can I extend it?
+                                    </div>
+                                    <div class="message-time">Today, 10:27 AM</div>
+                                </div>
+                                <div class="message">
+                                    <div class="message-content">
+                                        Unfortunately, tickets cannot be extended. You would need to purchase a new one. Would you like me to show you our current offers?
+                                    </div>
+                                    <div class="message-time">Today, 10:30 AM</div>
+                                </div>
+                            </div>
+                            <div class="messages-footer">
+                                <div class="message-input">
+                                    <input type="text" class="form-control" placeholder="Type your message...">
+                                    <button class="btn btn-primary">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple frontend functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ticket navigation
+            const ticketNavButtons = document.querySelectorAll('.ticket-nav button');
+            ticketNavButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    ticketNavButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Conversation selection
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            conversationItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    conversationItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Send message functionality
+            const messageInput = document.querySelector('.message-input input');
+            const sendButton = document.querySelector('.message-input button');
+            
+            sendButton.addEventListener('click', function() {
+                if (messageInput.value.trim() !== '') {
+                    const messagesBody = document.querySelector('.messages-body');
+                    
+                    const newMessage = document.createElement('div');
+                    newMessage.className = 'message user';
+                    
+                    const messageContent = document.createElement('div');
+                    messageContent.className = 'message-content';
+                    messageContent.textContent = messageInput.value;
+                    
+                    const messageTime = document.createElement('div');
+                    messageTime.className = 'message-time';
+                    const now = new Date();
+                    messageTime.textContent = `Today, ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    newMessage.appendChild(messageContent);
+                    newMessage.appendChild(messageTime);
+                    
+                    messagesBody.appendChild(newMessage);
+                    messageInput.value = '';
+                    
+                    // Scroll to bottom
+                    messagesBody.scrollTop = messagesBody.scrollHeight;
+                }
+            });
+            
+            // Allow sending message with Enter key
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
