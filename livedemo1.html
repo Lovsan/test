@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTVKING Advanced - AI Profiling & Playlist Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-dark: #0a0a0a;
+            --secondary-dark: #151515;
+            --accent-glow: #ff5500;
+            --accent-light: #ff7733;
+            --accent-dark: #cc4400;
+            --ai-color: #33ccff;
+            --ai-glow: #00aaff;
+            --gray-dark: #1a1a1a;
+            --gray-medium: #252525;
+            --gray-light: #333333;
+            --text-primary: #f0f0f0;
+            --text-secondary: #aaaaaa;
+            --danger: #ff3333;
+            --danger-glow: #ff0000;
+            --success: #33ff77;
+            --warning: #ffaa33;
+            --info: #33aaff;
+            --vip: #ffcc00;
+            --free: #33ff77;
+            --premium: #aa33ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Neural Network Background */
+        .neural-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+            opacity: 0.1;
+        }
+        
+        .ai-network {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, var(--ai-color) 1px, transparent 2px),
+                radial-gradient(circle at 90% 80%, var(--ai-color) 1px, transparent 2px),
+                radial-gradient(circle at 50% 50%, var(--ai-glow) 2px, transparent 3px);
+            background-size: 200px 200px;
+            animation: neuralPulse 20s infinite alternate;
+        }
+        
+        @keyframes neuralPulse {
+            0% { opacity: 0.05; }
+            100% { opacity: 0.15; }
+        }
+        
+        .data-stream {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(51, 204, 255, 0.1) 50%, transparent 100%);
+            animation: streamFlow 10s linear infinite;
+        }
+        
+        @keyframes streamFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Main Layout */
+        .advanced-header {
+            background: linear-gradient(to right, rgba(21, 21, 21, 0.95), rgba(40, 40, 40, 0.95));
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--accent-glow);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+        }
+        
+        .ai-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .ai-logo-icon {
+            color: var(--ai-color);
+            font-size: 32px;
+            filter: drop-shadow(0 0 10px var(--ai-glow));
+            animation: aiPulse 2s infinite;
+        }
+        
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .ai-logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--ai-color), var(--accent-glow));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        /* Tab Navigation */
+        .ai-tabs {
+            display: flex;
+            gap: 5px;
+            background-color: rgba(40, 40, 40, 0.8);
+            border-radius: 10px;
+            padding: 5px;
+        }
+        
+        .ai-tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid transparent;
+        }
+        
+        .ai-tab:hover, .ai-tab.active {
+            background-color: rgba(255, 85, 0, 0.2);
+            border-color: var(--accent-glow);
+            color: var(--accent-light);
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
+        }
+        
+        /* Main Container */
+        .ai-container {
+            display: none;
+            padding: 25px;
+            max-width: 1800px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .ai-container.active {
+            display: block;
+        }
+        
+        /* Grid Layout */
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .ai-card {
+            background: linear-gradient(145deg, rgba(21, 21, 21, 0.9), rgba(40, 40, 40, 0.9));
+            border-radius: 15px;
+            border: 1px solid var(--gray-light);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(40, 40, 40, 0.5);
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: var(--accent-glow);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--accent-glow), var(--accent-light));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 85, 0, 0.5);
+        }
+        
+        .btn-ai {
+            background: linear-gradient(to right, var(--ai-color), var(--ai-glow));
+            color: white;
+        }
+        
+        .btn-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(51, 204, 255, 0.5);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--gray-light);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-glow);
+            color: var(--accent-light);
+        }
+        
+        /* User Profiling Card */
+        .user-profile-card {
+            grid-column: span 4;
+            height: 600px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ai-color), var(--accent-glow));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .profile-info h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: var(--accent-light);
+        }
+        
+        .profile-info .user-role {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .vip-role {
+            background-color: rgba(255, 204, 0, 0.2);
+            color: var(--vip);
+            border: 1px solid var(--vip);
+        }
+        
+        .free-role {
+            background-color: rgba(51, 255, 119, 0.2);
+            color: var(--free);
+            border: 1px solid var(--free);
+        }
+        
+        .profile-details {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .profile-section {
+            margin-bottom: 25px;
+        }
+        
+        .profile-section h4 {
+            color: var(--ai-color);
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ai-insights {
+            background-color: rgba(51, 204, 255, 0.1);
+            border-left: 3px solid var(--ai-color);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 10px;
+        }
+        
+        .ai-insights p {
+            font-style: italic;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        .preference-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .preference-tag {
+            padding: 5px 10px;
+            background-color: rgba(255, 85, 0, 0.2);
+            border: 1px solid var(--accent-glow);
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--accent-light);
+        }
+        
+        .mental-state {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .mental-indicator {
+            width: 100px;
+            height: 10px;
+            background-color: var(--gray-medium);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .mental-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--danger), var(--warning), var(--success));
+            border-radius: 5px;
+        }
+        
+        /* Playlist Manager Enhanced */
+        .playlist-manager-card {
+            grid-column: span 8;
+            height: 600px;
+        }
+        
+        .playlist-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 0 20px;
+        }
+        
+        .playlist-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .playlist-tab:hover, .playlist-tab.active {
+            color: var(--accent-light);
+            border-bottom-color: var(--accent-glow);
+            background-color: rgba(255, 85, 0, 0.1);
+        }
+        
+        .playlist-content {
+            padding: 20px;
+            height: 470px;
+            overflow-y: auto;
+        }
+        
+        .playlist-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--accent-light);
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            background-color: rgba(40, 40, 40, 0.7);
+            border: 1px solid var(--gray-light);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
+        }
+        
+        .form-control-sm {
+            padding: 8px 12px;
+        }
+        
+        .range-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+            color: var(--accent-light);
+            font-weight: bold;
+        }
+        
+        /* Movie Database */
+        .movie-db-card {
+            grid-column: span 8;
+        }
+        
+        .movie-filters {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .movie-card {
+            background-color: rgba(40, 40, 40, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid var(--gray-light);
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-glow);
+            box-shadow: 0 10px 20px rgba(255, 85, 0, 0.2);
+        }
+        
+        .movie-poster {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, var(--gray-medium), var(--gray-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--text-secondary);
+        }
+        
+        .movie-info {
+            padding: 15px;
+        }
+        
+        .movie-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--accent-light);
+        }
+        
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .movie-languages {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .language-flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        /* FFMPEG Analysis */
+        .ffmpeg-card {
+            grid-column: span 4;
+        }
+        
+        .media-analysis {
+            padding: 20px;
+        }
+        
+        .media-info {
+            background-color: rgba(40, 40, 40, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+        }
+        
+        .info-value {
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+        
+        /* Request System */
+        .request-card {
+            grid-column: span 6;
+        }
+        
+        .request-list {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .request-item {
+            background-color: rgba(40, 40, 40, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--info);
+        }
+        
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .request-title {
+            font-weight: 700;
+            color: var(--accent-light);
+        }
+        
+        .request-votes {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--success);
+        }
+        
+        .request-comments {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gray-light);
+        }
+        
+        .comment {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        
+        /* Reverse Proxy System */
+        .proxy-system-card {
+            grid-column: span 12;
+        }
+        
+        .proxy-dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .proxy-map {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .proxy-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .proxy-stat {
+            background-color: rgba(40, 40, 40, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-light);
+        }
+        
+        /* Temp Folder */
+        .temp-folder-card {
+            grid-column: span 4;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .temp-folder-card:hover {
+            border-color: var(--ai-color);
+            transform: translateY(-3px);
+        }
+        
+        .temp-content {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .folder-icon {
+            font-size: 64px;
+            color: var(--ai-color);
+            margin-bottom: 20px;
+        }
+        
+        .temp-size {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--accent-light);
+            margin-bottom: 10px;
+        }
+        
+        .temp-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: linear-gradient(145deg, rgba(21, 21, 21, 0.95), rgba(40, 40, 40, 0.95));
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: none;
+            min-width: 200px;
+        }
+        
+        .context-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .context-menu-item:hover {
+            background-color: rgba(255, 85, 0, 0.2);
+            color: var(--accent-light);
+        }
+        
+        /* Footer */
+        .ai-footer {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: rgba(21, 21, 21, 0.9);
+            border-top: 1px solid var(--gray-light);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .ai-status {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .ai-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .user-profile-card, .playlist-manager-card,
+            .movie-db-card, .ffmpeg-card, .request-card,
+            .proxy-system-card, .temp-folder-card {
+                grid-column: span 6;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .advanced-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .ai-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .ai-tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .ai-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-profile-card, .playlist-manager-card,
+            .movie-db-card, .ffmpeg-card, .request-card,
+            .proxy-system-card, .temp-folder-card {
+                grid-column: span 1;
+            }
+            
+            .proxy-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Neural Network Background -->
+    <div class="neural-bg">
+        <div class="ai-network"></div>
+        <div class="data-stream"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="advanced-header">
+        <div class="ai-logo">
+            <div class="ai-logo-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="ai-logo-text">IPTVKING AI SYSTEM</div>
+        </div>
+        
+        <div class="ai-tabs">
+            <div class="ai-tab active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </div>
+            <div class="ai-tab" data-tab="profiling">
+                <i class="fas fa-user-cog"></i> AI Profiling
+            </div>
+            <div class="ai-tab" data-tab="playlists">
+                <i class="fas fa-stream"></i> Playlists
+            </div>
+            <div class="ai-tab" data-tab="movies">
+                <i class="fas fa-film"></i> Movie Database
+            </div>
+            <div class="ai-tab" data-tab="requests">
+                <i class="fas fa-vote-yea"></i> Requests
+            </div>
+            <div class="ai-tab" data-tab="proxy">
+                <i class="fas fa-server"></i> Proxy System
+            </div>
+        </div>
+    </header>
+    
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="viewMovieDetails()">
+            <i class="fas fa-info-circle"></i> View Details
+        </div>
+        <div class="context-menu-item" onclick="addToWatchlist()">
+            <i class="fas fa-plus"></i> Add to Watchlist
+        </div>
+        <div class="context-menu-item" onclick="markAsWatched()">
+            <i class="fas fa-check"></i> Mark as Watched
+        </div>
+        <div class="context-menu-item" onclick="requestSimilar()">
+            <i class="fas fa-search"></i> Find Similar
+        </div>
+        <div class="context-menu-item" onclick="shareContent()">
+            <i class="fas fa-share"></i> Share
+        </div>
+        <div class="context-menu-item" onclick="openTempFolder()">
+            <i class="fas fa-folder-open"></i> Open Temp Folder
+        </div>
+    </div>
+    
+    <!-- Dashboard Tab -->
+    <main class="ai-container active" id="dashboardTab">
+        <div class="ai-grid">
+            <!-- System Overview -->
+            <div class="ai-card" style="grid-column: span 8;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-network"></i> System Overview
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-ai">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: var(--accent-light);">2,847</div>
+                            <div style="color: var(--text-secondary);">Active Users</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: var(--ai-color);">47.2TB</div>
+                            <div style="color: var(--text-secondary);">Data Transferred</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: var(--vip);">$12,840</div>
+                            <div style="color: var(--text-secondary);">Monthly Income</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: var(--success);">98.7%</div>
+                            <div style="color: var(--text-secondary);">Uptime</div>
+                        </div>
+                    </div>
+                    
+                    <canvas id="systemChart" style="width: 100%; height: 300px; margin-top: 20px;"></canvas>
+                </div>
+            </div>
+            
+            <!-- AI Insights -->
+            <div class="ai-card" style="grid-column: span 4;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-robot"></i> AI Insights
+                    </h3>
+                </div>
+                <div style="padding: 20px;">
+                    <div class="ai-insights">
+                        <p>"System is operating at optimal levels. User engagement increased by 24% this week. Trending content: Sci-Fi movies and documentaries."</p>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: var(--ai-color); margin-bottom: 10px;">Active Learning</h4>
+                        <div style="background-color: rgba(51, 204, 255, 0.1); border-radius: 5px; padding: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>User Preference Analysis</span>
+                                <span>87%</span>
+                            </div>
+                            <div style="height: 5px; background-color: var(--gray-medium); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 87%; height: 100%; background: linear-gradient(to right, var(--ai-color), var(--ai-glow));"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="ai-card" style="grid-column: span 6;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </h3>
+                </div>
+                <div style="padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <button class="btn btn-primary" onclick="switchTab('playlists')">
+                        <i class="fas fa-plus"></i> Create Playlist
+                    </button>
+                    <button class="btn btn-ai" onclick="switchTab('movies')">
+                        <i class="fas fa-upload"></i> Upload Media
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchTab('proxy')">
+                        <i class="fas fa-shield-alt"></i> Security Check
+                    </button>
+                    <button class="btn btn-primary" onclick="switchTab('requests')">
+                        <i class="fas fa-vote-yea"></i> View Requests
+                    </button>
+                    <button class="btn btn-ai" onclick="openTempFolder()">
+                        <i class="fas fa-folder"></i> Temp Folder
+                    </button>
+                    <button class="btn btn-secondary" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i> Notifications (3)
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="ai-card" style="grid-column: span 6;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i> Recent Activity
+                    </h3>
+                </div>
+                <div style="padding: 20px; max-height: 200px; overflow-y: auto;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: rgba(40, 40, 40, 0.5); border-radius: 5px;">
+                            <i class="fas fa-user" style="color: var(--ai-color);"></i>
+                            <span>User "JohnDoe" watched "Interstellar" (AI rated: 95% match)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: rgba(40, 40, 40, 0.5); border-radius: 5px;">
+                            <i class="fas fa-server" style="color: var(--success);"></i>
+                            <span>New proxy server added in Singapore (Load: 24%)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: rgba(40, 40, 40, 0.5); border-radius: 5px;">
+                            <i class="fas fa-film" style="color: var(--vip);"></i>
+                            <span>VIP content added: "The Matrix 4K Remaster"</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- AI Profiling Tab -->
+    <main class="ai-container" id="profilingTab">
+        <div class="ai-grid">
+            <!-- User Profile -->
+            <div class="ai-card user-profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">JD</div>
+                    <div class="profile-info">
+                        <h3>John Doe</h3>
+                        <div>
+                            <span class="user-role vip-role">VIP</span>
+                            <span class="user-role" style="background-color: rgba(51, 204, 255, 0.2); color: var(--ai-color); border-color: var(--ai-color);">AI User</span>
+                        </div>
+                        <div style="margin-top: 5px; color: var(--text-secondary); font-size: 14px;">
+                            <i class="fas fa-calendar-alt"></i> Member since: Jan 2022
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-section">
+                        <h4><i class="fas fa-heart"></i> Content Preferences</h4>
+                        <div class="preference-tags">
+                            <span class="preference-tag">Sci-Fi</span>
+                            <span class="preference-tag">Documentary</span>
+                            <span class="preference-tag">Action</span>
+                            <span class="preference-tag">Thriller</span>
+                            <span class="preference-tag">4K Quality</span>
+                            <span class="preference-tag">Dolby Atmos</span>
+                            <span class="preference-tag">Adult Content</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h4><i class="fas fa-brain"></i> AI Psychological Profile</h4>
+                        <div class="ai-insights">
+                            <p>"User exhibits preference for intellectually stimulating content. Enjoys complex narratives and philosophical themes. Shows high engagement with content rated 18+. Viewing patterns suggest evening/nighttime viewing habits."</p>
+                        </div>
+                        <div class="mental-state">
+                            <span>Mental State Analysis:</span>
+                            <div class="mental-indicator">
+                                <div class="mental-fill" style="width: 75%;"></div>
+                            </div>
+                            <span>Stable</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h4><i class="fas fa-chart-line"></i> Viewing Statistics</h4>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; color: var(--accent-light);">142</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Movies Watched</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; color: var(--ai-color);">2,847</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Total Hours</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; color: var(--success);">94%</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Match Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h4><i class="fas fa-cogs"></i> AI Learning Progress</h4>
+                        <div style="margin-top: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Preference Accuracy</span>
+                                <span>92%</span>
+                            </div>
+                            <div style="height: 5px; background-color: var(--gray-medium); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 92%; height: 100%; background: linear-gradient(to right, var(--ai-color), var(--ai-glow));"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Recommendations -->
+            <div class="ai-card" style="grid-column: span 8; height: 600px;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-star"></i> AI Recommendations
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-ai">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 20px; height: 520px; overflow-y: auto;">
+                    <div class="movie-grid">
+                        <!-- AI recommended movies will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Playlist Manager Tab -->
+    <main class="ai-container" id="playlistsTab">
+        <div class="ai-grid">
+            <div class="ai-card playlist-manager-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-stream"></i> Advanced Playlist Manager
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="savePlaylist()">
+                            <i class="fas fa-save"></i> Save Playlist
+                        </button>
+                        <button class="btn btn-ai" onclick="analyzePlaylist()">
+                            <i class="fas fa-brain"></i> AI Optimize
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="playlist-tabs">
+                    <div class="playlist-tab active" data-playlist-tab="basic">Basic Settings</div>
+                    <div class="playlist-tab" data-playlist-tab="advanced">Advanced Settings</div>
+                    <div class="playlist-tab" data-playlist-tab="content">Content Management</div>
+                    <div class="playlist-tab" data-playlist-tab="security">Security & Access</div>
+                </div>
+                
+                <div class="playlist-content">
+                    <!-- Basic Settings Tab -->
+                    <div class="playlist-tab-content active" id="basicTab">
+                        <div class="playlist-form">
+                            <div class="form-group">
+                                <label class="form-label">Playlist Name</label>
+                                <input type="text" class="form-control" id="playlistName" value="Premium Movie Collection">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Playlist Type</label>
+                                <select class="form-control" id="playlistType">
+                                    <option value="free">Free (with ads)</option>
+                                    <option value="premium" selected>Premium</option>
+                                    <option value="vip">VIP</option>
+                                    <option value="private">Private</option>
+                                    <option value="adult">Adult Content</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Connections</label>
+                                <div class="range-display">
+                                    <input type="range" class="form-control" id="maxConnections" min="1" max="1000" value="100" style="flex: 1;">
+                                    <span class="range-value" id="connectionsValue">100</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Upstream (Mbps)</label>
+                                <input type="number" class="form-control" id="maxUpstream" value="1000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Downstream (Mbps)</label>
+                                <input type="number" class="form-control" id="maxDownstream" value="5000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Content Limit</label>
+                                <div class="range-display">
+                                    <input type="range" class="form-control" id="contentLimit" min="10" max="10000" value="500" style="flex: 1;">
+                                    <span class="range-value" id="contentValue">500 items</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quality Restrictions</label>
+                                <select class="form-control" id="qualityRestrictions" multiple style="height: 120px;">
+                                    <option value="360p">360p</option>
+                                    <option value="480p">480p</option>
+                                    <option value="720p" selected>720p</option>
+                                    <option value="1080p" selected>1080p</option>
+                                    <option value="2k" selected>2K</option>
+                                    <option value="4k" selected>4K</option>
+                                    <option value="8k">8K</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Settings Tab -->
+                    <div class="playlist-tab-content" id="advancedTab">
+                        <div class="playlist-form">
+                            <div class="form-group">
+                                <label class="form-label">Buffer Size (MB)</label>
+                                <input type="number" class="form-control" id="bufferSize" value="256">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cache TTL (minutes)</label>
+                                <input type="number" class="form-control" id="cacheTTL" value="60">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Load Balancing</label>
+                                <select class="form-control" id="loadBalancing">
+                                    <option value="auto">Auto (AI optimized)</option>
+                                    <option value="roundrobin">Round Robin</option>
+                                    <option value="leastconn">Least Connections</option>
+                                    <option value="source">Source IP Hash</option>
+                                    <option value="none">Disabled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Compression Level</label>
+                                <div class="range-display">
+                                    <input type="range" class="form-control" id="compressionLevel" min="0" max="9" value="6" style="flex: 1;">
+                                    <span class="range-value" id="compressionValue">6</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CDN Integration</label>
+                                <select class="form-control" id="cdnIntegration">
+                                    <option value="cloudflare">Cloudflare</option>
+                                    <option value="akamai">Akamai</option>
+                                    <option value="fastly">Fastly</option>
+                                    <option value="custom">Custom</option>
+                                    <option value="none">Disabled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Stream Protocol</label>
+                                <select class="form-control" id="streamProtocol">
+                                    <option value="hls">HLS</option>
+                                    <option value="dash">MPEG-DASH</option>
+                                    <option value="rtmp">RTMP</option>
+                                    <option value="rtsp">RTSP</option>
+                                    <option value="webrtc">WebRTC</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Management Tab -->
+                    <div class="playlist-tab-content" id="contentTab">
+                        <div style="margin-bottom: 20px;">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Content
+                            </button>
+                            <button class="btn btn-secondary" style="margin-left: 10px;">
+                                <i class="fas fa-folder-open"></i> Import Folder
+                            </button>
+                            <button class="btn btn-ai" style="margin-left: 10px;">
+                                <i class="fas fa-magic"></i> AI Organize
+                            </button>
+                        </div>
+                        
+                        <div style="background-color: rgba(40, 40, 40, 0.7); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4 style="color: var(--accent-light);">Content List</h4>
+                                <span>487 items</span>
+                            </div>
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                                    <div class="movie-card">
+                                        <div class="movie-poster"><i class="fas fa-film"></i></div>
+                                        <div class="movie-info">
+                                            <div class="movie-title">Interstellar</div>
+                                            <div class="movie-meta">
+                                                <span>2014</span>
+                                                <span>4K</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="movie-card">
+                                        <div class="movie-poster"><i class="fas fa-film"></i></div>
+                                        <div class="movie-info">
+                                            <div class="movie-title">The Matrix</div>
+                                            <div class="movie-meta">
+                                                <span>1999</span>
+                                                <span>4K Remaster</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security & Access Tab -->
+                    <div class="playlist-tab-content" id="securityTab">
+                        <div class="playlist-form">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" id="requirePassword" checked> Password Protection
+                                </label>
+                                <input type="password" class="form-control" id="playlistPassword" value="********" style="margin-top: 10px;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Access Control</label>
+                                <select class="form-control" id="accessControl">
+                                    <option value="public">Public</option>
+                                    <option value="private">Private</option>
+                                    <option value="invite">Invite Only</option>
+                                    <option value="vip">VIP Only</option>
+                                    <option value="whitelist">IP Whitelist</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Allowed Countries</label>
+                                <select class="form-control" id="allowedCountries" multiple style="height: 100px;">
+                                    <option value="us">United States</option>
+                                    <option value="uk">United Kingdom</option>
+                                    <option value="ca">Canada</option>
+                                    <option value="au">Australia</option>
+                                    <option value="de">Germany</option>
+                                    <option value="fr">France</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Concurrent Users</label>
+                                <input type="number" class="form-control" id="maxConcurrentUsers" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Session Timeout (minutes)</label>
+                                <input type="number" class="form-control" id="sessionTimeout" value="30">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Playlist Statistics -->
+            <div class="ai-card" style="grid-column: span 4; height: 600px;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-pie"></i> Playlist Stats
+                    </h3>
+                </div>
+                <div style="padding: 20px;">
+                    <canvas id="playlistChart" style="width: 100%; height: 200px; margin-bottom: 20px;"></canvas>
+                    
+                    <div style="background-color: rgba(40, 40, 40, 0.7); border-radius: 10px; padding: 15px;">
+                        <div class="info-row">
+                            <span class="info-label">Total Content</span>
+                            <span class="info-value">487 items</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total Size</span>
+                            <span class="info-value">2.4 TB</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Avg. Quality</span>
+                            <span class="info-value">1080p</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Active Users</span>
+                            <span class="info-value">142</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Monthly Bandwidth</span>
+                            <span class="info-value">4.7 TB</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Revenue</span>
+                            <span class="info-value" style="color: var(--vip);">$1,247</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-download"></i> Export Playlist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Movie Database Tab -->
+    <main class="ai-container" id="moviesTab">
+        <div class="ai-grid">
+            <!-- Movie Database -->
+            <div class="ai-card movie-db-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-database"></i> Movie Database
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Movie
+                        </button>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="movie-filters">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search movies...">
+                    <select class="form-control form-control-sm" style="width: auto;">
+                        <option>All Genres</option>
+                        <option>Action</option>
+                        <option>Sci-Fi</option>
+                        <option>Drama</option>
+                        <option>Adult</option>
+                    </select>
+                    <select class="form-control form-control-sm" style="width: auto;">
+                        <option>All Quality</option>
+                        <option>4K</option>
+                        <option>1080p</option>
+                        <option>720p</option>
+                    </select>
+                </div>
+                
+                <div class="movie-grid" id="movieGrid" oncontextmenu="showContextMenu(event)">
+                    <!-- Movies will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- FFMPEG Analysis -->
+            <div class="ai-card ffmpeg-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-video"></i> FFMPEG Media Analysis
+                    </h3>
+                </div>
+                
+                <div class="media-analysis">
+                    <div class="media-info">
+                        <div class="info-row">
+                            <span class="info-label">File Name</span>
+                            <span class="info-value">interstellar.4k.mkv</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Duration</span>
+                            <span class="info-value">2h 49m 07s</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Resolution</span>
+                            <span class="info-value">3840x2160 (4K)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Bitrate</span>
+                            <span class="info-value">45.2 Mbps</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Video Codec</span>
+                            <span class="info-value">HEVC (H.265)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Audio Tracks</span>
+                            <span class="info-value">5 (English, Spanish, French, German, Commentary)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Subtitle Tracks</span>
+                            <span class="info-value">12 languages</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">File Size</span>
+                            <span class="info-value">55.7 GB</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: var(--ai-color); margin-bottom: 10px;">Subtitle Languages</h4>
+                        <div class="movie-languages">
+                            <span class="flag-icon flag-icon-us" style="font-size: 24px;" title="English"></span>
+                            <span class="flag-icon flag-icon-es" style="font-size: 24px;" title="Spanish"></span>
+                            <span class="flag-icon flag-icon-fr" style="font-size: 24px;" title="French"></span>
+                            <span class="flag-icon flag-icon-de" style="font-size: 24px;" title="German"></span>
+                            <span class="flag-icon flag-icon-it" style="font-size: 24px;" title="Italian"></span>
+                            <span class="flag-icon flag-icon-ru" style="font-size: 24px;" title="Russian"></span>
+                            <span class="flag-icon flag-icon-jp" style="font-size: 24px;" title="Japanese"></span>
+                            <span class="flag-icon flag-icon-cn" style="font-size: 24px;" title="Chinese"></span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-ai" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-cogs"></i> Run Full Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Request System Tab -->
+    <main class="ai-container" id="requestsTab">
+        <div class="ai-grid">
+            <!-- Movie Requests -->
+            <div class="ai-card request-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-vote-yea"></i> Movie Requests
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Request
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="request-list">
+                    <div class="request-item">
+                        <div class="request-header">
+                            <div class="request-title">Dune: Part Two (2023)</div>
+                            <div class="request-votes">
+                                <i class="fas fa-arrow-up"></i> 247
+                            </div>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 10px;">
+                            Requested by: JohnDoe | Status: <span style="color: var(--success);">Available Now</span>
+                        </div>
+                        <div class="request-comments">
+                            <div class="comment">
+                                <strong>JaneSmith:</strong> Can't wait for this! Please add 4K version.
+                            </div>
+                            <div class="comment">
+                                <strong>MovieLover42:</strong> +1 for this request
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="request-item">
+                        <div class="request-header">
+                            <div class="request-title">The Batman (2022) 4K HDR</div>
+                            <div class="request-votes">
+                                <i class="fas fa-arrow-up"></i> 189
+                            </div>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 10px;">
+                            Requested by: DarkKnight | Status: <span style="color: var(--warning);">In Progress</span>
+                        </div>
+                    </div>
+                    
+                    <div class="request-item">
+                        <div class="request-header">
+                            <div class="request-title">Avatar: The Way of Water (2022)</div>
+                            <div class="request-votes">
+                                <i class="fas fa-arrow-up"></i> 421
+                            </div>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 10px;">
+                            Requested by: PandoraFan | Status: <span style="color: var(--info);">Coming Soon</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification System -->
+            <div class="ai-card request-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-bell"></i> Notification System
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" checked> Notify when requested content is available
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" checked> Notify followers when I add new content
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox"> Notify for similar content recommendations
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4 style="color: var(--accent-light); margin-bottom: 15px;">Recent Notifications</h4>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            <div style="padding: 10px; background-color: rgba(40, 40, 40, 0.5); border-radius: 5px; margin-bottom: 10px;">
+                                <i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i>
+                                <span>Your request "Dune: Part Two" is now available!</span>
+                            </div>
+                            <div style="padding: 10px; background-color: rgba(40, 40, 40, 0.5); border-radius: 5px; margin-bottom: 10px;">
+                                <i class="fas fa-user-plus" style="color: var(--info); margin-right: 10px;"></i>
+                                <span>JohnDee started following you</span>
+                            </div>
+                            <div style="padding: 10px; background-color: rgba(40, 40, 40, 0.5); border-radius: 5px; margin-bottom: 10px;">
+                                <i class="fas fa-star" style="color: var(--vip); margin-right: 10px;"></i>
+                                <span>New VIP content added: "Oppenheimer 4K"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Proxy System Tab -->
+    <main class="ai-container" id="proxyTab">
+        <div class="ai-grid">
+            <!-- Reverse Proxy System -->
+            <div class="ai-card proxy-system-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-shield-alt"></i> Reverse Proxy System
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-ai">
+                            <i class="fas fa-sync-alt"></i> Refresh All
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Server
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="proxy-dashboard">
+                    <div class="proxy-map" id="proxyMap"></div>
+                    
+                    <div class="proxy-stats">
+                        <div class="proxy-stat">
+                            <span>Online Servers</span>
+                            <span class="stat-value" style="color: var(--success);">24</span>
+                        </div>
+                        <div class="proxy-stat">
+                            <span>Total Traffic</span>
+                            <span class="stat-value" style="color: var(--ai-color);">14.7TB</span>
+                        </div>
+                        <div class="proxy-stat">
+                            <span>Blocked Attacks</span>
+                            <span class="stat-value" style="color: var(--danger);">1,247</span>
+                        </div>
+                        <div class="proxy-stat">
+                            <span>Avg Latency</span>
+                            <span class="stat-value">24ms</span>
+                        </div>
+                        <div class="proxy-stat">
+                            <span>Uptime</span>
+                            <span class="stat-value" style="color: var(--success);">99.8%</span>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <h4 style="color: var(--accent-light); margin-bottom: 10px;">System Health</h4>
+                            <div style="background-color: rgba(40, 40, 40, 0.7); border-radius: 10px; padding: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span>Load Balancer 1</span>
+                                    <span style="color: var(--success);">✓ Online</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span>Load Balancer 2</span>
+                                    <span style="color: var(--success);">✓ Online</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span>Database Cluster</span>
+                                    <span style="color: var(--warning);">⚠ Warning</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>CDN Network</span>
+                                    <span style="color: var(--success);">✓ Optimal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Temp Folder Monitor -->
+            <div class="ai-card temp-folder-card" onclick="openTempFolder()">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-folder"></i> Temp Folder
+                    </h3>
+                </div>
+                <div class="temp-content">
+                    <div class="folder-icon">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="temp-size">47.2 GB</div>
+                    <div class="temp-info">Temporary cache files</div>
+                    <div class="temp-info" style="margin-top: 10px;">Click to open folder</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="ai-footer">
+        <div class="ai-status">
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>AI System: Active</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-users" style="color: var(--ai-color);"></i>
+                <span>2,847 Active Users</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-server" style="color: var(--success);"></i>
+                <span>24/7 Proxy System</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-shield-alt" style="color: var(--warning);"></i>
+                <span>3 Hostile Connections Blocked</span>
+            </div>
+        </div>
+        <div>
+            &copy; 2023 IPTVKING Advanced AI System v4.2 | 
+            <span style="color: var(--ai-color);">Neural Network Active: Learning from 2,847 users</span> |
+            <span style="color: var(--vip);">VIP Content: 487 items available</span>
+        </div>
+    </footer>
+    
+    <script>
+        // Initialize Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZGV2c2FtcGxlIiwiYSI6ImNsaGk0N2QybjB2bXQzZnFyc3VzdGsyY3cifQ.E_46frWAjWqcj4VhK9Lcmw';
+        
+        const proxyMap = new mapboxgl.Map({
+            container: 'proxyMap',
+            style: 'mapbox://styles/mapbox/dark-v11',
+            center: [20, 30],
+            zoom: 1.5
+        });
+        
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.ai-container').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.ai-tab').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Activate corresponding tab button
+            document.querySelector(`.ai-tab[data-tab="${tabName}"]`).classList.add('active');
+            
+            // If switching to proxy tab, resize map
+            if (tabName === 'proxy') {
+                setTimeout(() => {
+                    proxyMap.resize();
+                }, 100);
+            }
+        }
+        
+        // Playlist tab switching
+        document.querySelectorAll('.playlist-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all playlist tabs
+                document.querySelectorAll('.playlist-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Hide all playlist tab contents
+                document.querySelectorAll('.playlist-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Activate clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = this.getAttribute('data-playlist-tab');
+                document.getElementById(tabId + 'Tab').classList.add('active');
+            });
+        });
+        
+        // Range value display
+        document.getElementById('maxConnections').addEventListener('input', function() {
+            document.getElementById('connectionsValue').textContent = this.value;
+        });
+        
+        document.getElementById('contentLimit').addEventListener('input', function() {
+            document.getElementById('contentValue').textContent = this.value + ' items';
+        });
+        
+        document.getElementById('compressionLevel').addEventListener('input', function() {
+            document.getElementById('compressionValue').textContent = this.value;
+        });
+        
+        // Initialize Charts
+        const systemCtx = document.getElementById('systemChart').getContext('2d');
+        const systemChart = new Chart(systemCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    {
+                        label: 'Active Users',
+                        data: [1200, 1400, 1800, 2200, 2400, 2800, 2847],
+                        borderColor: '#ff5500',
+                        backgroundColor: 'rgba(255, 85, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Bandwidth (TB)',
+                        data: [2.4, 3.1, 4.2, 5.8, 7.2, 9.4, 12.1],
+                        borderColor: '#33ccff',
+                        backgroundColor: 'rgba(51, 204, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#aaaaaa'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#aaaaaa'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        const playlistCtx = document.getElementById('playlistChart').getContext('2d');
+        const playlistChart = new Chart(playlistCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Movies', 'TV Shows', 'Documentaries', 'Adult', 'Other'],
+                datasets: [{
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: [
+                        '#ff5500',
+                        '#33ccff',
+                        '#33ff77',
+                        '#aa33ff',
+                        '#ffaa33'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Load sample movies
+        function loadMovies() {
+            const movies = [
+                { title: 'Interstellar', year: 2014, quality: '4K', languages: ['us', 'es', 'fr', 'de'] },
+                { title: 'The Matrix', year: 1999, quality: '4K Remaster', languages: ['us', 'es', 'fr'] },
+                { title: 'Inception', year: 2010, quality: '1080p', languages: ['us', 'es', 'fr', 'de', 'it'] },
+                { title: 'The Dark Knight', year: 2008, quality: '4K', languages: ['us', 'es', 'fr', 'de'] },
+                { title: 'Parasite', year: 2019, quality: '1080p', languages: ['kr', 'us', 'es', 'fr'] },
+                { title: 'Blade Runner 2049', year: 2017, quality: '4K HDR', languages: ['us', 'es', 'fr', 'de'] },
+                { title: 'Dune', year: 2021, quality: '4K', languages: ['us', 'es', 'fr', 'de', 'it'] },
+                { title: 'The Shawshank Redemption', year: 1994, quality: '1080p', languages: ['us', 'es', 'fr'] }
+            ];
+            
+            const movieGrid = document.getElementById('movieGrid');
+            movieGrid.innerHTML = '';
+            
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.dataset.movie = JSON.stringify(movie);
+                movieCard.innerHTML = `
+                    <div class="movie-poster"><i class="fas fa-film"></i></div>
+                    <div class="movie-info">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-meta">
+                            <span>${movie.year}</span>
+                            <span>${movie.quality}</span>
+                        </div>
+                        <div class="movie-languages">
+                            ${movie.languages.map(lang => `<span class="flag-icon flag-icon-${lang}" title="${lang.toUpperCase()}"></span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                movieGrid.appendChild(movieCard);
+            });
+        }
+        
+        // Context Menu
+        function showContextMenu(event) {
+            event.preventDefault();
+            
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = event.pageX + 'px';
+            contextMenu.style.top = event.pageY + 'px';
+            
+            // Store clicked movie
+            if (event.target.closest('.movie-card')) {
+                const movieCard = event.target.closest('.movie-card');
+                contextMenu.dataset.movie = movieCard.dataset.movie;
+            }
+            
+            // Hide context menu when clicking elsewhere
+            document.addEventListener('click', hideContextMenu);
+        }
+        
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            document.removeEventListener('click', hideContextMenu);
+        }
+        
+        function viewMovieDetails() {
+            const contextMenu = document.getElementById('contextMenu');
+            const movie = JSON.parse(contextMenu.dataset.movie);
+            alert(`Viewing details for: ${movie.title}\nYear: ${movie.year}\nQuality: ${movie.quality}`);
+        }
+        
+        function addToWatchlist() {
+            const contextMenu = document.getElementById('contextMenu');
+            const movie = JSON.parse(contextMenu.dataset.movie);
+            alert(`Added "${movie.title}" to watchlist`);
+        }
+        
+        function markAsWatched() {
+            const contextMenu = document.getElementById('contextMenu');
+            const movie = JSON.parse(contextMenu.dataset.movie);
+            alert(`Marked "${movie.title}" as watched`);
+        }
+        
+        function requestSimilar() {
+            const contextMenu = document.getElementById('contextMenu');
+            const movie = JSON.parse(contextMenu.dataset.movie);
+            alert(`Finding similar movies to "${movie.title}"`);
+        }
+        
+        function shareContent() {
+            const contextMenu = document.getElementById('contextMenu');
+            const movie = JSON.parse(contextMenu.dataset.movie);
+            alert(`Sharing "${movie.title}" with your followers`);
+        }
+        
+        function openTempFolder() {
+            alert('Opening temporary folder...\nTotal size: 47.2 GB\nFiles: 12,847\nCache: 24.1 GB\nLogs: 3.8 GB\nTemporary: 19.3 GB');
+        }
+        
+        // Save playlist
+        function savePlaylist() {
+            const playlistName = document.getElementById('playlistName').value;
+            const maxConnections = document.getElementById('maxConnections').value;
+            const maxUpstream = document.getElementById('maxUpstream').value;
+            const maxDownstream = document.getElementById('maxDownstream').value;
+            
+            alert(`Playlist "${playlistName}" saved!\nMax Connections: ${maxConnections}\nMax Upstream: ${maxUpstream} Mbps\nMax Downstream: ${maxDownstream} Mbps`);
+        }
+        
+        // AI optimize playlist
+        function analyzePlaylist() {
+            alert('AI analyzing playlist...\nOptimizing for:\n- Load balancing\n- Bandwidth efficiency\n- Content distribution\n- User preferences\n\nEstimated improvement: 24% efficiency gain');
+        }
+        
+        // Show notifications
+        function showNotifications() {
+            alert('You have 3 new notifications:\n1. New content added to your watchlist\n2. Your request "Dune: Part Two" is now available\n3. System maintenance scheduled for tonight');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMovies();
+            
+            // Initialize Flatpickr for date inputs
+            flatpickr(".datepicker", {
+                dateFormat: "Y-m-d",
+                theme: "dark"
+            });
+            
+            // Simulate live updates
+            setInterval(() => {
+                // Update active users with slight random variation
+                const userElement = document.querySelector('.ai-status .status-item:nth-child(2) span');
+                const currentUsers = parseInt(userElement.textContent.split(' ')[0].replace(',', ''));
+                const newUsers = currentUsers + Math.floor(Math.random() * 10) - 3;
+                userElement.textContent = `${Math.max(2000, newUsers).toLocaleString()} Active Users`;
+                
+                // Update system chart with new data point
+                const lastValue = systemChart.data.datasets[0].data[6];
+                systemChart.data.datasets[0].data.shift();
+                systemChart.data.datasets[0].data.push(lastValue + Math.floor(Math.random() * 100) - 30);
+                
+                systemChart.data.datasets[1].data.shift();
+                const lastBandwidth = systemChart.data.datasets[1].data[5];
+                systemChart.data.datasets[1].data.push(lastBandwidth + (Math.random() * 0.5));
+                
+                systemChart.update('none');
+            }, 10000);
+            
+            // Add click handlers for tab switching
+            document.querySelectorAll('.ai-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+            
+            // Add context menu listener
+            document.addEventListener('contextmenu', showContextMenu);
+            
+            // Add click listener to hide context menu
+            document.addEventListener('click', hideContextMenu);
+        });
+    </script>
+</body>
+</html>
